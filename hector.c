@@ -187,7 +187,7 @@ int readCorrect(const kseq_t *read) {
             //reverse = ((reverse >> 2) | (((uint64_t) (c^3)) << ((k*2)-2))); // TODO Declare also shift constant?
         } else {
             index = 0;
-            ++failed;
+            ++failed; // TODO What happens here?
         }
         if (index >= k) {
             khiter_t iter = kh_get(SAG, h, forward);
@@ -205,7 +205,7 @@ int readCorrect(const kseq_t *read) {
                             read->seq.s[i+1] = 'T';
                         } else { // cannot decide
                             index = -1; // TODO think about it: 0 or -1?
-                            ++failed;
+                            ++failed; // TODO Consider coverage?
                         }
 
                     } else { // no support at all
@@ -270,13 +270,14 @@ inline void stk_printseq(const kseq_t *s) {
 void fileCorrect(const char *file) {
     gzFile fp = strcmp(file, "-") ? gzopen(file, "r") : gzdopen(fileno(stdin), "r");
     kseq_t *r = kseq_init(fp);
+    // TODO Work on a copy of the kseq_t, to allow to output original read if [below]
     while (kseq_read(r) >= 0) {
         if (readCorrect(r)) {
             seq_revcomp(r);
             readCorrect(r);
             seq_revcomp(r);
         }
-        stk_printseq(r);
+        stk_printseq(r); // TODO Check number of corrections, suppress overly aggressiveness
     }
     kseq_destroy(r);
     gzclose(fp);
