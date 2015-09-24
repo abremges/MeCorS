@@ -25,7 +25,7 @@
 
 #define PROGRAM "corsage"
 #define DESCR   "Metagenome-enabled error correction of single cell sequencing reads"
-#define VERSION "0.2.0"
+#define VERSION "0.2.1"
 #define AUTHOR  "Andreas Bremges"
 #define CONTACT "andreas@cebitec.uni-bielefeld.de"
 
