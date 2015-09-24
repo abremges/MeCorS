@@ -175,10 +175,10 @@ inline int baseCorrect(const int base, const next_base_t next) {
 
     // The metagenome doesn't support the next base sufficiently, we try to correct
     int majority = (next.a + next.c + next.g + next.t)/2;
-    if (next.a > majority) return 0;
-    if (next.c > majority) return 1;
-    if (next.g > majority) return 2;
-    if (next.t > majority) return 3;
+    if (next.a > majority && next.a >= min_cov) return 0;
+    if (next.c > majority && next.c >= min_cov) return 1;
+    if (next.g > majority && next.g >= min_cov) return 2;
+    if (next.t > majority && next.t >= min_cov) return 3;
 
     // We could not correct the next base, indicate failure by returning -1
     return -1;
