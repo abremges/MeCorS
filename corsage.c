@@ -35,7 +35,7 @@ KSEQ_INIT(gzFile, gzread)
 
 #include "khash.h"
 typedef struct next_base {
-    uint16_t a, c, g, t;
+    uint8_t a, c, g, t;
 } next_base_t;
 KHASH_MAP_INIT_INT64(SAG, next_base_t)
 khash_t(SAG) *h;
@@ -112,16 +112,16 @@ void kmerPlusPlus(const uint64_t kmer, const int base) {
         next_base_t next = kh_value(h, iter);
         switch (base) {
             case 0:
-                if (next.a < 31) ++next.a;
+                if (next.a < 255) ++next.a;
                 break;
             case 1:
-                if (next.c < 31) ++next.c;
+                if (next.c < 255) ++next.c;
                 break;
             case 2:
-                if (next.g < 31) ++next.g;
+                if (next.g < 255) ++next.g;
                 break;
             case 3:
-                if (next.t < 31) ++next.t;
+                if (next.t < 255) ++next.t;
                 break;
         }
     }
