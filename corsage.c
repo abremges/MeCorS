@@ -25,10 +25,10 @@
 
 #define VERSION "0.2.2"
 
-#include <stdint.h> // uint64_t
-#include <stdio.h>  // printf
-#include <unistd.h> // getopt
-#include <zlib.h>   // gzip
+#include <inttypes.h> // uint64_t
+#include <stdio.h>    // printf
+#include <unistd.h>   // getopt
+#include <zlib.h>     // gzip
 
 #include "kseq.h"
 KSEQ_INIT(gzFile, gzread)
@@ -57,7 +57,7 @@ unsigned char seq_rev_table[4] = {
 };
 
 int k = 31, min_cov = 2;
-uint64_t n_total1 = 0, n_total2 = 0, n_meta = 0;
+uintmax_t n_total1 = 0, n_total2 = 0, n_meta = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Init the data structure, i.e. insert keys into hash (single-cell k-mers)   //
@@ -89,7 +89,7 @@ void readInitHash(const kseq_t *read) {
         }
     }
     ++n_total1;
-    if (!(n_total1 % 10000)) fprintf(stderr, "%llu\n", n_total1);
+    if (!(n_total1 % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_total1);
 }
 
 void fileInitHash(const char *file) {
@@ -144,7 +144,7 @@ void readPlusPlus(const kseq_t *read) {
         }
     }
     ++n_meta;
-    if (!(n_meta % 10000)) fprintf(stderr, "%llu\n", n_meta);
+    if (!(n_meta % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_meta);
 }
 
 void filePlusPlus(const char *file) {
@@ -285,7 +285,7 @@ void fileCorrect(const char *file) {
         stk_printseq(r);
         
         ++n_total2;
-        if (!(n_total2 % 10000)) fprintf(stderr, "%llu / %llu\n", n_total2, n_total1);
+        if (!(n_total2 % 10000)) fprintf(stderr, "%" PRIuMAX " / %" PRIuMAX "\n", n_total2, n_total1);
     }
     kseq_destroy(r);
     gzclose(fp);
@@ -337,14 +337,14 @@ int main(int argc, char *argv[]) {
     h = kh_init(SAG);
     fprintf(stderr, "Init.\n");
     fileInitHash(one);
-    if (!(n_total1 % 10000)) fprintf(stderr, "%llu\n", n_total1);
+    if (!(n_total1 % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_total1);
     fprintf(stderr, "Fill.\n");
     filePlusPlus(two);
-    if (!(n_meta % 10000)) fprintf(stderr, "%llu\n", n_meta);
+    if (!(n_meta % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_meta);
     fprintf(stderr, "Corr.\n");
     fileCorrect(one);
     fprintf(stderr, "Done.\n");
-    if ((n_total2 % 10000)) fprintf(stderr, "%llu / %llu\n", n_total2, n_total1);
+    if ((n_total2 % 10000)) fprintf(stderr, "%" PRIuMAX " / %" PRIuMAX "\n", n_total2, n_total1);
 
     kh_destroy(SAG, h);
     return 0;
