@@ -35,14 +35,14 @@
 #include <zlib.h>   // gzip
 
 #include "kseq.h"
-KSEQ_INIT(gzFile, gzread) // TODO Check for Heng Li's way to use it
+KSEQ_INIT(gzFile, gzread)
 
 #include "khash.h"
-//typedef struct next_base {
-//    uint8_t a:2, c:2, g:2, t:2;
-//} next_base_t;
-KHASH_MAP_INIT_INT64(SAG, uint32_t) // TODO Check usage in e.g. fermi2, bfc, ...
-khash_t(SAG) *h; // TODO Also, rename from SAG
+typedef struct next_base {
+    uint16_t a, c, g, t;
+} next_base_t;
+KHASH_MAP_INIT_INT64(SAG, next_base_t)
+khash_t(SAG) *h;
 
 // A = 00, C = 01, G = 10, T = 11, i.e. XOR with 3 -> compl.
 unsigned char seq_fwd_table[128] = {
@@ -60,7 +60,7 @@ unsigned char seq_rev_table[4] = {
     'A', 'C', 'G', 'T'
 };
 
-int k = 27;
+int k = 31, min_cov = 2;
 uint64_t n_total1 = 0, n_total2 = 0, n_meta = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,34 +72,28 @@ void kmerInitHash(const uint64_t kmer) {
     if (iter == kh_end(h)) {
         int ret;
         iter = kh_put(SAG, h, kmer, &ret);
-        kh_value(h, iter) = 0;
+        kh_value(h, iter) = (next_base_t) {0,0,0,0};
     }
 }
 
 void readInitHash(const kseq_t *read) {
-    int index = 0;
     uint64_t forward = 0;
     uint64_t reverse = 0;
-    uint64_t mask = (1ULL<<k*2) - 1;
-    int i;
-    for (i = 0; i < read->seq.l; ++i) {
-        index++;
+    for (int i = 0, index = 1; i < read->seq.l; ++i, ++index) {
         int c = seq_fwd_table[(int) read->seq.s[i]];
         if (c < 4) {
-            forward = (((forward << 2) | c) & mask); // see below
-            //if (mask > 0) forward &= mask; <- only a problem if k = 32
+            forward = (((forward << 2) | c) & ((1ULL<<k*2)-1));
             reverse = ((reverse >> 2) | (((uint64_t) (c^3)) << ((k*2)-2)));
         } else {
             index = 0;
         }
         if (index >= k) {
-            //uint64_t z = ((forward < reverse) ? forward : reverse);
             kmerInitHash(forward);
             kmerInitHash(reverse);
         }
     }
     ++n_total1;
-    if (!(n_total1 % 10000)) fprintf(stderr, "%i\n", n_total1);
+    if (!(n_total1 % 10000)) fprintf(stderr, "%llu\n", n_total1);
 }
 
 void fileInitHash(const char *file) {
@@ -119,37 +113,42 @@ void fileInitHash(const char *file) {
 void kmerPlusPlus(const uint64_t kmer, const int base) {
     khiter_t iter = kh_get(SAG, h, kmer);
     if (iter != kh_end(h)) {
-        uint32_t c = (kh_value(h, iter) >> (base*8)) & 255;
-        if (c < 31) { //&& !(rand() % (1U<<c))) {//ctable[c])) {
-            kh_value(h, iter) += (1U<<(base*8)); // max. tracked coverage = 31
+        next_base_t next = kh_value(h, iter);
+        switch (base) {
+            case 0:
+                if (next.a < 31) ++next.a;
+                break;
+            case 1:
+                if (next.c < 31) ++next.c;
+                break;
+            case 2:
+                if (next.g < 31) ++next.g;
+                break;
+            case 3:
+                if (next.t < 31) ++next.t;
+                break;
         }
     }
 }
 
 void readPlusPlus(const kseq_t *read) {
-    int index = 0;
     uint64_t forward = 0;
     uint64_t reverse = 0;
-    uint64_t mask = (1ULL<<k*2) - 1;
-    int i;
-    for (i = 0; i < read->seq.l; ++i) {
-        index++;
+    for (int i = 0, index = 1; i < read->seq.l; ++i, ++index) { // 1-based index
         int c = seq_fwd_table[(int) read->seq.s[i]];
         if (c < 4) {
-            forward = (((forward << 2) | c) & mask); // see below
-            //if (mask > 0) forward &= mask; <- only a problem if k = 32
-            reverse = ((reverse >> 2) | (((uint64_t) (c^3)) << ((k*2)-2))); // TODO Declare also shift constant?
+            forward = (((forward << 2) | c) & ((1ULL<<k*2)-1));
+            reverse = ((reverse >> 2) | (((uint64_t) (c^3)) << ((k*2)-2)));
         } else {
             index = 0;
         }
         if (index >= k) {
-            //uint64_t z = ((forward < reverse) ? forward : reverse); // TODO Store (k-1)mers to avoid the sequence lookups?
-            if (i < read->seq.l-1) kmerPlusPlus(forward, seq_fwd_table[(int) read->seq.s[i+1]]); // TODO Check for boundaries
-            if (i >= k) kmerPlusPlus(reverse, seq_fwd_table[(int) read->seq.s[i-k]]^3); // Double-check here
+            if (i < read->seq.l-1) kmerPlusPlus(forward, seq_fwd_table[(int) read->seq.s[i+1]]); // OK
+            if (i >= k) kmerPlusPlus(reverse, seq_fwd_table[(int) read->seq.s[i-k]]^3); // OK
         }
     }
     ++n_meta;
-    if (!(n_meta % 10000)) fprintf(stderr, "%i\n", n_meta);
+    if (!(n_meta % 10000)) fprintf(stderr, "%llu\n", n_meta);
 }
 
 void filePlusPlus(const char *file) {
@@ -166,81 +165,72 @@ void filePlusPlus(const char *file) {
 // Error correction                                                           //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define MASK 0xFFFFFFFFU
+inline int baseCorrect(const int base, const next_base_t next) {
+
+    // Look for support in the metagenome, if min_cov is reached don't try to correct
+    if (base == 0 && next.a >= min_cov) return base;
+    if (base == 1 && next.c >= min_cov) return base;
+    if (base == 2 && next.g >= min_cov) return base;
+    if (base == 3 && next.t >= min_cov) return base;
+
+    // The metagenome doesn't support the next base sufficiently, we try to correct
+    int majority = (next.a + next.c + next.g + next.t)/2;
+    if (next.a > majority) return 0;
+    if (next.c > majority) return 1;
+    if (next.g > majority) return 2;
+    if (next.t > majority) return 3;
+
+    // We could not correct the next base, indicate failure by returning -1
+    return -1;
+}
+
 int readCorrect(const kseq_t *read) {
     int failed = 0;
     int corrected = 0;
-    int index = 0;
     uint64_t forward = 0;
-    uint64_t mask = (1ULL<<k*2) - 1;
-    int i;
-    for (i = 0; i < read->seq.l-1; ++i) { // stops 1 char before end to look ahead!
-        index++;
+    for (int i = 0, index = 1; i < read->seq.l-1; ++i, ++index) { // stops 1 char before end to look ahead!
         int c = seq_fwd_table[(int) read->seq.s[i]];
         if (c < 4) {
-            forward = (((forward << 2) | c) & mask); // see below
-            //if (mask > 0) forward &= mask; <- only a problem if k = 32
-            //reverse = ((reverse >> 2) | (((uint64_t) (c^3)) << ((k*2)-2))); // TODO Declare also shift constant?
+            forward = (((forward << 2) | c) & ((1ULL<<k*2)-1));
         } else {
             index = 0;
-            ++failed; // TODO What happens here?
+            ++failed;
         }
         if (index >= k) {
             khiter_t iter = kh_get(SAG, h, forward);
             if (iter != kh_end(h)) {
-                uint32_t tmp = kh_value(h, iter);
-                if (seq_fwd_table[(int)read->seq.s[i+1]] >= 4 || !(tmp&(255<<(seq_fwd_table[(int)read->seq.s[i+1]]<<3)))) { // no support through MG
-                    if (tmp^(MASK&(255<<(seq_fwd_table[(int)read->seq.s[i+1]]<<3)))) { // but there is at least one alternative
-                        if (tmp&(255<<(seq_fwd_table['A']<<3)) && !(tmp&(MASK^(255<<(seq_fwd_table['A']<<3))))) {
+                next_base_t next = kh_value(h, iter); // supported 32nd bases
+                int base = seq_fwd_table[(int)read->seq.s[i+1]]; // current base
+                int sbase = baseCorrect(base, next);
+                if (base != sbase) { // Correction needed
+                    switch (sbase) {
+                        case 0:
                             read->seq.s[i+1] = 'A';
                             ++corrected;
-                        } else if (tmp&(255<<(seq_fwd_table['C']<<3)) && !(tmp&(MASK^(255<<(seq_fwd_table['C']<<3))))) {
+                            break;
+                        case 1:
                             read->seq.s[i+1] = 'C';
                             ++corrected;
-                        } else if (tmp&(255<<(seq_fwd_table['G']<<3)) && !(tmp&(MASK^(255<<(seq_fwd_table['G']<<3))))) {
+                            break;
+                        case 2:
                             read->seq.s[i+1] = 'G';
                             ++corrected;
-                        } else if (tmp&(255<<(seq_fwd_table['T']<<3)) && !(tmp&(MASK^(255<<(seq_fwd_table['T']<<3))))) { // TODO Remove ugly code redundancy
+                            break;
+                        case 3:
                             read->seq.s[i+1] = 'T';
                             ++corrected;
-                        } else { // cannot decide
-                            // TODO Introduce --aggressive option?
-                            int tmp_a = (tmp&(255<<(seq_fwd_table['A']<<3)))>>(seq_fwd_table['A']<<3);
-                            int tmp_c = (tmp&(255<<(seq_fwd_table['C']<<3)))>>(seq_fwd_table['C']<<3);
-                            int tmp_g = (tmp&(255<<(seq_fwd_table['G']<<3)))>>(seq_fwd_table['G']<<3);
-                            int tmp_t = (tmp&(255<<(seq_fwd_table['T']<<3)))>>(seq_fwd_table['T']<<3);
-
-                            if (tmp_a > tmp_c && tmp_a > tmp_g && tmp_a > tmp_t) {
-                                read->seq.s[i+1] = 'A';
-                                ++corrected;
-                            } else if (tmp_c > tmp_a && tmp_c > tmp_g && tmp_c > tmp_t) {
-                                read->seq.s[i+1] = 'C';
-                                ++corrected;
-                            } else if (tmp_g > tmp_a && tmp_g > tmp_c && tmp_g > tmp_t) {
-                                read->seq.s[i+1] = 'G';
-                                ++corrected;
-                            } else if (tmp_t > tmp_a && tmp_t > tmp_c && tmp_t > tmp_g) {
-                                read->seq.s[i+1] = 'T';
-                                ++corrected;
-                            } else { // cannot decide
-                                index = -1; // TODO think about it: 0 or -1?
-                                ++failed; // TODO Consider coverage?
-                            }
-                        }
-
-                    } else { // no support at all
-                        index = -1;
-                        ++failed;
+                            break;
+                        default:
+                            index = -1; // Skip uncorrectable base
+                            ++failed;
+                            break;
                     }
                 }
-            } // TODO what else?
+            }
         }
     }
-    //fputs(read->name.s, stderr);
-    //fprintf(stderr, "\tc:%i\tf:%i\n", corrected, failed);
     return failed;
 }
-
 
 //////////
 // Taken from: https://github.com/lh3/seqtk/blob/master/seqtk.c
@@ -270,8 +260,6 @@ void seq_revcomp(kseq_t *seq) {
         c0 = seq->qual.s[i], seq->qual.s[i] = seq->qual.s[seq->qual.l - 1 - i], seq->qual.s[seq->qual.l - 1 - i] = c0;
     }
 }
-//////////
-
 inline void stk_printseq(const kseq_t *s) {
     fputc(s->qual.l? '@' : '>', stdout);
     fputs(s->name.s, stdout);
@@ -292,17 +280,16 @@ inline void stk_printseq(const kseq_t *s) {
 void fileCorrect(const char *file) {
     gzFile fp = strcmp(file, "-") ? gzopen(file, "r") : gzdopen(fileno(stdin), "r");
     kseq_t *r = kseq_init(fp);
-    // TODO Work on a copy of the kseq_t, to allow to output original read if [below]
     while (kseq_read(r) >= 0) {
         if (readCorrect(r)) {
             seq_revcomp(r);
             readCorrect(r);
             seq_revcomp(r);
         }
-        stk_printseq(r); // TODO Check number of corrections, suppress overly aggressiveness?
+        stk_printseq(r);
         
         ++n_total2;
-        if (!(n_total2 % 10000)) fprintf(stderr, "%i / %i\n", n_total2, n_total1);
+        if (!(n_total2 % 10000)) fprintf(stderr, "%llu / %llu\n", n_total2, n_total1);
     }
     kseq_destroy(r);
     gzclose(fp);
@@ -313,28 +300,32 @@ void fileCorrect(const char *file) {
 ////////////////////////////////////////////////////////////////////////////////
 
 static int usage() {
-    fprintf(stderr, "pcount [-k INT] -1 <SC.fastq> -2 <MG.fastq>\n");
+    fprintf(stderr, "corsage [-k INT] [-c INT] -1 <SC.fastq> -2 <MG.fastq>\n");
     return 42;
 }
 
 int main(int argc, char *argv[]) {
     char *one = 0, *two = 0;
     int c;
-    while((c = getopt(argc, argv, "1:2:k:")) != -1) {
+    while((c = getopt(argc, argv, "1:2:k:c:")) != -1) {
         switch (c) {
             case '1':
-            one = optarg;
-            break;
+                one = optarg;
+                break;
             case '2':
-            two = optarg;
-            break;
+                two = optarg;
+                break;
             case 'k':
-            k = atoi(optarg);
-            if (k < 15) k = 15;
-            if (k > 31) k = 31;
-            break;
+                k = atoi(optarg);
+                if (k < 15) k = 15;
+                if (k > 31) k = 31;
+                break;
+            case 'c':
+                min_cov = atoi(optarg);
+                if (min_cov < 1) min_cov = 1;
+                break;
             default:
-            return usage();
+                return usage();
         }
     }
     if(!one || !two) return usage();
