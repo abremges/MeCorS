@@ -1,4 +1,4 @@
-hector / corsage [![Build Status](https://magnum.travis-ci.com/abremges/hector.svg?token=Ebg4XZAcowyajM89NgpH&branch=master)](https://magnum.travis-ci.com/abremges/hector)
+corsage [![Build Status](https://magnum.travis-ci.com/abremges/hector.svg?token=Ebg4XZAcowyajM89NgpH&branch=master)](https://magnum.travis-ci.com/abremges/hector)
 ======
 
 Hybrid Error Correction of Single Cell Sequencing Reads:
