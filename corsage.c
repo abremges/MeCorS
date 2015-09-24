@@ -23,11 +23,7 @@
    SOFTWARE.
 */
 
-#define PROGRAM "corsage"
-#define DESCR   "Metagenome-enabled error correction of single cell sequencing reads"
-#define VERSION "0.2.1"
-#define AUTHOR  "Andreas Bremges"
-#define CONTACT "andreas@cebitec.uni-bielefeld.de"
+#define VERSION "0.2.2"
 
 #include <stdint.h> // uint64_t
 #include <stdio.h>  // printf
@@ -300,19 +296,28 @@ void fileCorrect(const char *file) {
 ////////////////////////////////////////////////////////////////////////////////
 
 static int usage() {
-    fprintf(stderr, "corsage [-k INT] [-c INT] -1 <SC.fastq> -2 <MG.fastq>\n");
+    fprintf(stderr, "corsage version %s by Andreas Bremges (andreas@cebitec.uni-bielefeld.de)\n\n", VERSION);
+
+    fprintf(stderr, "Usage: corsage [options] -s <SC.fastq> -m <MG.fastq>\n\n");
+
+    fprintf(stderr, "       -s <SC.fastq>  single cell sequencing reads\n");
+    fprintf(stderr, "       -m <MG.fastq>  metagenomic sequencing reads\n");
+    fprintf(stderr, "                      (fastq or fasta, can be gzip'ed)\n\n");
+
+    fprintf(stderr, "       -k INT         k-mer size for error correction [%i]\n", k);
+    fprintf(stderr, "       -c INT         min. coverage in the metagenome [%i]\n\n", min_cov);
     return 42;
 }
 
 int main(int argc, char *argv[]) {
     char *one = 0, *two = 0;
     int c;
-    while((c = getopt(argc, argv, "1:2:k:c:")) != -1) {
+    while((c = getopt(argc, argv, "s:m:k:c:")) != -1) {
         switch (c) {
-            case '1':
+            case 's':
                 one = optarg;
                 break;
-            case '2':
+            case 'm':
                 two = optarg;
                 break;
             case 'k':
