@@ -332,11 +332,14 @@ int main(int argc, char *argv[]) {
     h = kh_init(SAG);
     fprintf(stderr, "Init.\n");
     fileInitHash(one);
+    if (!(n_total1 % 10000)) fprintf(stderr, "%llu\n", n_total1);
     fprintf(stderr, "Fill.\n");
     filePlusPlus(two);
+    if (!(n_meta % 10000)) fprintf(stderr, "%llu\n", n_meta);
     fprintf(stderr, "Corr.\n");
     fileCorrect(one);
     fprintf(stderr, "Done.\n");
+    if ((n_total2 % 10000)) fprintf(stderr, "%llu / %llu\n", n_total2, n_total1);
 
     kh_destroy(SAG, h);
     return 0;
