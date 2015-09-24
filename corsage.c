@@ -23,7 +23,7 @@
    SOFTWARE.
 */
 
-#define VERSION "0.2.2"
+#define VERSION "0.2.3"
 
 #include <inttypes.h> // uint64_t
 #include <stdio.h>    // printf
@@ -109,19 +109,20 @@ void fileInitHash(const char *file) {
 void kmerPlusPlus(const uint64_t kmer, const int base) {
     khiter_t iter = kh_get(SAG, h, kmer);
     if (iter != kh_end(h)) {
-        next_base_t next = kh_value(h, iter);
+        next_base_t *p_next = &(kh_value(h, iter));
         switch (base) {
             case 0:
-                if (next.a < 255) ++next.a;
+                if (p_next->a < 255) ++(p_next->a);
+                fprintf(stderr, "%i\n", p_next->a);
                 break;
             case 1:
-                if (next.c < 255) ++next.c;
+                if (p_next->c < 255) ++(p_next->c);
                 break;
             case 2:
-                if (next.g < 255) ++next.g;
+                if (p_next->g < 255) ++(p_next->g);
                 break;
             case 3:
-                if (next.t < 255) ++next.t;
+                if (p_next->t < 255) ++(p_next->t);
                 break;
         }
     }
