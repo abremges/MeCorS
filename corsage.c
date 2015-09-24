@@ -23,7 +23,7 @@
    SOFTWARE.
 */
 
-#define VERSION "0.2.3"
+#define VERSION "0.2.4"
 
 #include <inttypes.h> // uint64_t
 #include <stdio.h>    // printf
