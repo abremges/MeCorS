@@ -113,7 +113,6 @@ void kmerPlusPlus(const uint64_t kmer, const int base) {
         switch (base) {
             case 0:
                 if (p_next->a < 255) ++(p_next->a);
-                fprintf(stderr, "%i\n", p_next->a);
                 break;
             case 1:
                 if (p_next->c < 255) ++(p_next->c);
@@ -164,12 +163,15 @@ void filePlusPlus(const char *file) {
 
 inline int baseCorrect(const int base, const next_base_t next) {
 
+    // TODO switch (base) instead, for better readability (and maybe speed)
+    // TODO also introduce a qvalue filter? always try to correct/confirm low-q bases
     // Look for support in the metagenome, if min_cov is reached don't try to correct
     if (base == 0 && next.a >= min_cov) return base;
     if (base == 1 && next.c >= min_cov) return base;
     if (base == 2 && next.g >= min_cov) return base;
     if (base == 3 && next.t >= min_cov) return base;
 
+    // TODO think about the second condition
     // The metagenome doesn't support the next base sufficiently, we try to correct
     int majority = (next.a + next.c + next.g + next.t)/2;
     if (next.a > majority && next.a >= min_cov) return 0;
