@@ -29,7 +29,7 @@ $^{2}$U.S. Department of Energy Joint Genome Institute, Walnut Creek, CA 94598, 
 
 \section{Single amplified genomes}
 
-Descibe why and how the SAGs were generated. Cite \citep{scott2}. State average sequencing depth (constant), but different MDA quality levels. Highlight two exceptionally well amplified SAGs (6 \& 7), that are closer to isolate-grade genomes. Also highlight the problematic ones mentioned in main text, where the hybrid error correction clearly outperforms SAG-only correction. Table \textbf{S1}.
+\textit{Descibe why and how the SAGs were generated. Cite \citep{scott2}. State average sequencing depth (constant), but different MDA quality levels. Highlight two exceptionally well amplified SAGs (6 \& 7), that are closer to isolate-grade genomes. Also highlight the problematic ones mentioned in main text, where the hybrid error correction clearly outperforms SAG-only correction. Table \textbf{S1}.}
 
 \begin{table}[h]
 \processtable{Per-base coverage for the eight \textit{E. coli} SAGs.}
@@ -60,17 +60,17 @@ bla bla}
 
 \section{Mock metagenome}
 
-Generated at the JGI, initially for internal benchmarking. NCBI accession number or some way to get it via IMG or GOLD (alternatively, might be okay to provide upon request, contact Tanja?). Describe what's in there. Refer to table with molecular weights and mapping statistics (genome coverage), Table \textbf{S2}.
+\textit{Generated at the JGI, initially for internal benchmarking. NCBI accession number or some way to get it via IMG or GOLD (alternatively, might be okay to provide upon request, contact Tanja?). Describe what's in there. Refer to table with molecular weights and mapping statistics (genome coverage), Table \textbf{S2}.}
 
-Probably also include a tree containing all 26 genomes, based on their 16S (or -- simpler -- extracted from iTOL, as all are known!). This might be of interest to see how closely related the stuff in there is. Discuss with others!
+\textit{Probably also include a tree containing all 26 genomes, based on their 16S (or -- simpler -- extracted from iTOL, as all are known!). This might be of interest to see how closely related the stuff in there is. Discuss with others!}
 
 \section{Metrics per SAG}
 
-Read-based in Table \textbf{S3}, assembly-based in Tables \textbf{S4} and \textbf{S5}.
+\textit{Read-based in Table \textbf{S3}, assembly-based in Tables \textbf{S4} and \textbf{S5}.}
 
-Explain the parameter sweep for -c, the metagenomic coverage threshold. Setting this to 2 already produces much better results, with a higher threshold yielding slightly better results, but more sample-specific. Setting it to 2 should work in all cases, and thus is the default setting. You might get better results if you play around with it, depends on target coverage in the metagenome.
+\textit{Explain the parameter sweep for -c, the metagenomic coverage threshold. Setting this to 2 already produces much better results, with a higher threshold yielding slightly better results, but more sample-specific. Setting it to 2 should work in all cases, and thus is the default setting. You might get better results if you play around with it, depends on target coverage in the metagenome.}
 
-Assembly parameters (k) were tuned to maximize the NG50 value of the BayesHammer + SPAdes assembly. Changing from the default -k 21,33,55 to -k 21,33,55,77 produced better assemblies, thus we picked this combination. -{}-careful reduces the number of misassemblies by (1) less aggressive assemby and (2) polishing of the contigs in a postprocessing step involving read mapping.
+\textit{Assembly parameters (k) were tuned to maximize the NG50 value of the BayesHammer + SPAdes assembly. Changing from the default -k 21,33,55 to -k 21,33,55,77 produced better assemblies, thus we picked this combination. -{}-careful reduces the number of misassemblies by (1) less aggressive assemby and (2) polishing of the contigs in a postprocessing step involving read mapping.}
 
 \bibliography{corsage_refs}
 \newpage

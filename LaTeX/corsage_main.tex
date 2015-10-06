@@ -45,11 +45,11 @@ The vast majority of microbial species observed in nature cannot be grown in pur
 Frequently, single amplified genomes (SAGs) and accompanying shotgun metagenomes are generated from the same environmental sample \citep{mason, op9}, and were methodologically combined to validate metagenome bins with single cells \citep{cowrumen} or to improve the SAG's assembly contiguity \citep{sr1}.
 But so far, noone explored the idea to combine both approaches to correct sequencing errors in single cell sequencing reads.
 
-SAG reads pose additional challenges to error correction: uneven sequencing depth~\citep{chitsaz}, ultra-low coverage regions with basically no correction possible (Table~\textbf{S1}). %TODO
-Many chimeric reads \citep{lasken}, we expect one chimeric event every 10 kb \citep{rodrigue}, they pose a big challenge during assembly \citep{spades2}.
+\textit{SAG reads pose additional challenges to error correction: uneven sequencing depth~\citep{chitsaz}, ultra-low coverage regions with basically no correction possible (Table~\textbf{S1}).} %TODO
+\textit{Many chimeric reads \citep{lasken}, we expect one chimeric event every 10 kb \citep{rodrigue}, they pose a big challenge during assembly \citep{spades2}.} %TODO
 While there are plenty of error correction tools for a variety of use cases available \citep{david}, only one tool was specifically designed to correct SAG data: hammer \citep{hammer}, developed further to BayesHammer \citep{bayeshammer}.
 
-Conclude that one might want to use both data sources for the job. If an accompanying metagenome is available, you might as well take advantage of it!
+\textit{Conclude that one might want to use both data sources for the job. If an accompanying metagenome is available, you might as well take advantage of it!}
 
 \vspace{-1em}
 
@@ -78,8 +78,8 @@ Roughly speaking, corsage tries to correct an unsupported base if by looking up 
 \section{Results and Discussions}
 
 As a realistic benchmark, we used eight \textit{Escherichia coli} K12-MG1655 SAGs from~\citealp{scott2}, for which the complete genome sequence is available.
-We generated an accompanying \emph{in vitro} mock metagenome consisting of 26 microbial species and sequenced it on Illumina's HiSeq~(Table~\textbf{S2}). %TODO
-Based on measured molarity (mapped metagenome reads), we estimate an abundance of $0.3\%$ ($0.24\%$) for \textit{E.~coli}, corresponding to a mean genome coverage of $20.7\times$. %TODO Check molarity
+We generated an accompanying \emph{in vitro} mock metagenome consisting of 26 microbial species and sequenced it on Illumina's HiSeq (Table~\textbf{S2}). %TODO
+Based on measured molarity (mapped metagenome reads), we estimate an abundance of $0.3\%$ ($0.24\%$) for \textit{E.~coli}, corresponding to a mean genome coverage of $20.7\times$. %TODO
 
 \begin{table}[t]
 \processtable{Performance of error correction}
@@ -131,15 +131,15 @@ corsage corrects more errors than BayesHammer, producing a higher fraction of be
 Notably, corsage also suppresses chimeric reads, potentially due to the metagenome not being MDA-amplified. BayesHammer surprisingly introduces additional chimeric reads.
 
 corsage also works well with single cell assemblers (Table~2).
-Discuss results obtained with SPAdes-3.6.0 \citep{spades1} and IDBA-UD-1.1.1 \citep{idba_ud}. Less misassembly events, probably because corsage corrects chimeric reads, too. Also slightly increased contiguity while maintaining or surpassing the original accuracy.
+\textit{Discuss results obtained with SPAdes-3.6.0 \citep{spades1} and IDBA-UD-1.1.1 \citep{idba_ud}. Less misassembly events, probably because corsage corrects chimeric reads, too. Also slightly increased contiguity while maintaining or surpassing the original accuracy.}
 
-Discuss outliers (6 \& 7), better MDA = less coverage bias = better assembly. Here, hybrid error correction shows the least effect.
-Point to the Table~\textbf{S1}.
-SAGs with highest MDA bias (3 \& 4) are harder to correct (more ultra-low coverage regions), and also perform poorest in assembly (Tables~\textbf{S4} and \textbf{S5}). These benefit the most from metagenome-enabled error correction.
-Incorporating a second source of information (metagenome) has the potential to expand the current state-of-the-art, and produces excellent results.
+\textit{Discuss outliers (6 \& 7), better MDA = less coverage bias = better assembly. Here, hybrid error correction shows the least effect.}
+\textit{Point to the Table~\textbf{S1}.}
+\textit{SAGs with highest MDA bias (3 \& 4) are harder to correct (more ultra-low coverage regions), and also perform poorest in assembly (Tables~\textbf{S4} and \textbf{S5}). These benefit the most from metagenome-enabled error correction.}
+\textit{Incorporating a second source of information (metagenome) has the potential to expand the current state-of-the-art, and produces excellent results.}
 
-Discuss, that metagenome-enabled error correction of SAG data might result in miscorrections of rare variants (low-abundant strain captured, reads might get corrected towards the most abundant strain).
-Argue that these do not matter much, and could be polished in a postprocessing step (e.g. pilon, sequel).
+\textit{Discuss, that metagenome-enabled error correction of SAG data might result in miscorrections of rare variants (low-abundant strain captured, reads might get corrected towards the most abundant strain).}
+\textit{Argue that these do not matter much, and could be polished in a postprocessing step (e.g. pilon, sequel).}
 
 \section*{Acknowledgement}
 %Esther Singer, if she doesn't qualify as co-author (Tanja decides). She generated the mock metagenome. %TODO
