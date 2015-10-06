@@ -56,7 +56,7 @@ unsigned char seq_rev_table[4] = {
     'A', 'C', 'G', 'T'
 };
 
-int k = 31, min_cov = 2;
+int k = 31, min_cov = 2, verbose = 0;
 uintmax_t n_total1 = 0, n_total2 = 0, n_meta = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,8 +88,6 @@ void readInitHash(const kseq_t *read) {
             kmerInitHash(reverse);
         }
     }
-    ++n_total1;
-    if (!(n_total1 % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_total1);
 }
 
 void fileInitHash(const char *file) {
@@ -97,7 +95,9 @@ void fileInitHash(const char *file) {
     kseq_t *r = kseq_init(fp);
     while (kseq_read(r) >= 0) {
         readInitHash(r);
+        if (verbose && !((++n_total1) % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_total1);
     }
+    if (verbose && n_total1 % 10000) fprintf(stderr, "%" PRIuMAX "\n", n_total1);
     kseq_destroy(r);
     gzclose(fp);
 }
@@ -143,8 +143,6 @@ void readPlusPlus(const kseq_t *read) {
             if (i >= k) kmerPlusPlus(reverse, seq_fwd_table[(int) read->seq.s[i-k]]^3); // OK
         }
     }
-    ++n_meta;
-    if (!(n_meta % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_meta);
 }
 
 void filePlusPlus(const char *file) {
@@ -152,7 +150,9 @@ void filePlusPlus(const char *file) {
     kseq_t *r = kseq_init(fp);
     while (kseq_read(r) >= 0) {
         readPlusPlus(r);
+        if (verbose && !((++n_meta) % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_meta);
     }
+    if (verbose && n_meta % 10000) fprintf(stderr, "%" PRIuMAX "\n", n_meta);
     kseq_destroy(r);
     gzclose(fp);
 }
@@ -162,16 +162,14 @@ void filePlusPlus(const char *file) {
 ////////////////////////////////////////////////////////////////////////////////
 
 inline int baseCorrect(const int base, const next_base_t next) {
-
-    // TODO switch (base) instead, for better readability (and maybe speed)
     // TODO also introduce a qvalue filter? always try to correct/confirm low-q bases
+
     // Look for support in the metagenome, if min_cov is reached don't try to correct
     if (base == 0 && next.a >= min_cov) return base;
     if (base == 1 && next.c >= min_cov) return base;
     if (base == 2 && next.g >= min_cov) return base;
     if (base == 3 && next.t >= min_cov) return base;
 
-    // TODO think about the second condition
     // The metagenome doesn't support the next base sufficiently, we try to correct
     int majority = (next.a + next.c + next.g + next.t)/2;
     if (next.a > majority && next.a >= min_cov) return 0;
@@ -286,10 +284,9 @@ void fileCorrect(const char *file) {
             seq_revcomp(r);
         }
         stk_printseq(r);
-        
-        ++n_total2;
-        if (!(n_total2 % 10000)) fprintf(stderr, "%" PRIuMAX " / %" PRIuMAX "\n", n_total2, n_total1);
+        if (verbose && !((++n_total2) % 10000)) fprintf(stderr, "%" PRIuMAX " / %" PRIuMAX "\n", n_total2, n_total1);
     }
+    if (verbose && n_total2 % 10000) fprintf(stderr, "%" PRIuMAX " / %" PRIuMAX "\n", n_total2, n_total1);
     kseq_destroy(r);
     gzclose(fp);
 }
@@ -308,14 +305,15 @@ static int usage() {
     fprintf(stderr, "                      (fastq or fasta, can be gzip'ed)\n\n");
 
     fprintf(stderr, "       -k INT         k-mer size for error correction [%i]\n", k);
-    fprintf(stderr, "       -c INT         min. coverage in the metagenome [%i]\n\n", min_cov);
+    fprintf(stderr, "       -c INT         min. coverage in the metagenome [%i]\n", min_cov);
+    fprintf(stderr, "       -v             be verbose\n\n");
     return 42;
 }
 
 int main(int argc, char *argv[]) {
     char *one = 0, *two = 0;
     int c;
-    while((c = getopt(argc, argv, "s:m:k:c:")) != -1) {
+    while((c = getopt(argc, argv, "s:m:k:c:v")) != -1) {
         switch (c) {
             case 's':
                 one = optarg;
@@ -332,6 +330,9 @@ int main(int argc, char *argv[]) {
                 min_cov = atoi(optarg);
                 if (min_cov < 1) min_cov = 1;
                 break;
+            case 'v':
+                verbose = 1;
+                break;
             default:
                 return usage();
         }
@@ -340,14 +341,11 @@ int main(int argc, char *argv[]) {
     h = kh_init(SAG);
     fprintf(stderr, "Init.\n");
     fileInitHash(one);
-    if (!(n_total1 % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_total1);
     fprintf(stderr, "Fill.\n");
     filePlusPlus(two);
-    if (!(n_meta % 10000)) fprintf(stderr, "%" PRIuMAX "\n", n_meta);
     fprintf(stderr, "Corr.\n");
     fileCorrect(one);
     fprintf(stderr, "Done.\n");
-    if ((n_total2 % 10000)) fprintf(stderr, "%" PRIuMAX " / %" PRIuMAX "\n", n_total2, n_total1);
 
     kh_destroy(SAG, h);
     return 0;
