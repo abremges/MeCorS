@@ -37,21 +37,18 @@ corsage particularly does well in correcting chimeric reads, which helps to impr
 %\section{Supplementary information:} Test data and in-depth evaluations are available from \href{https://github.com/metagenomics/2015-corsage}{https://github.com/metagenomics/2015-corsage} \textbf{XXX}
 \end{abstract}
 
-\vspace{-1em}
-
 \section{Introduction}
 
 The vast majority of microbial species observed in nature cannot be grown in pure culture \citep{rappe}, turning metagenomics and -- more recently -- single cell genomics into indispensable methods to study the microbial dark matter \citep{mdm}.
-Frequently, single amplified genomes (SAGs) and accompanying shotgun metagenomes are generated from the same environmental sample \citep{mason, op9}, and were methodologically combined to validate metagenome bins with single cells \citep{cowrumen} or to improve the SAG's assembly contiguity \citep{sr1}.
-But so far, noone explored the idea to combine both approaches to correct sequencing errors in single cell sequencing reads.
+Frequently, single amplified genomes (SAGs) and accompanying shotgun metagenomes are generated from the same environmental sample, and were methodologically combined to e.g. validate metagenome bins with single cells \citep{cowrumen} or to improve the SAG's assembly contiguity \citep{sr1}. % [...] from the same environmental sample \citep{mason, op9}, and were [...]
+But so far, noone explored the idea to combine both approaches to tackle SAG-specific error correction challenges.
 
-\textit{SAG reads pose additional challenges to error correction: uneven sequencing depth~\citep{chitsaz}, ultra-low coverage regions with basically no correction possible (Table~\textbf{S1}).} %TODO
-\textit{Many chimeric reads \citep{lasken}, we expect one chimeric event every 10 kb \citep{rodrigue}, they pose a big challenge during assembly \citep{spades2}.} %TODO
-While there are plenty of error correction tools for a variety of use cases available \citep{david}, only one tool was specifically designed to correct SAG data: hammer \citep{hammer}, developed further to BayesHammer \citep{bayeshammer}.
+A single cell's DNA needs to be amplified prior to sequencing, as usually done by multiple displacement amplification (MDA; \citealp{mda}).
+This introduces a tremendous coverage bias resulting in uneven sequencing depth \citep{chitsaz}, including ultra-low coverage regions with basically no informed error correction possible (Table \textbf{S1}; Figure \textbf{S1}).
+Chimera formations during MDA occur roughly once per 10 kbp \citep{lasken,rodrigue}, further complicating SAG assembly \citep{spades2}. %TODO citep{lasken} ?
+While there are plenty of error correction tools for a variety of use cases available \citep{david}, only one tool was specifically designed to correct SAG data: hammer \citep{hammer}, refined to BayesHammer \citep{bayeshammer}.
 
-\textit{Conclude that one might want to use both data sources for the job. If an accompanying metagenome is available, you might as well take advantage of it!}
-
-\vspace{-1em}
+We propose a metagenome-enabled error correction strategy for single cell sequencing reads, taking advantage of largely unbiased metagenomic coverage at sites with too low a coverage for SAG-only error correction.
 
 \begin{methods}
 \section{Methods}
@@ -63,7 +60,6 @@ We consider a $k$-mer trusted if it occurs at least $2\times$ in the accompanyin
 In principle, corsage is similar to the error correction in fermi \citep{fermi}.
 It differs in that it removes fermi's assumption of even sequencing coverage to account for the extreme coverage bias in single cell data.
 Instead, it exploits metagenomic sequence information to correct errors even in ultra-low coverage regions of the single cell.
-The metagenome generates coverage at sites with too low a coverage for SAG-only error correction.
 
 corsage corrects errors in three phases:
 \begin{enumerate}
@@ -72,14 +68,13 @@ corsage corrects errors in three phases:
 \item corsage processes each SAG read by using the 31-mer hash table to check if the 32-nd base has sufficient support in the metagenome.
 Roughly speaking, corsage tries to correct an unsupported base if by looking up its 31-mer prefix we know the base is different from an overwhelmingly frequent 32-nd base in the metagenome.
 \end{enumerate}
-
 \end{methods}
 
 \section{Results and Discussions}
 
 As a realistic benchmark, we used eight \textit{Escherichia coli} K12-MG1655 SAGs from~\citealp{scott2}, for which the complete genome sequence is available.
 We generated an accompanying \emph{in vitro} mock metagenome consisting of 26 microbial species and sequenced it on Illumina's HiSeq (Table~\textbf{S2}). %TODO
-Based on measured molarity (mapped metagenome reads), we estimate an abundance of $0.3\%$ ($0.24\%$) for \textit{E.~coli}, corresponding to a mean genome coverage of $20.7\times$. %TODO
+Based on measured molarity (mapped metagenome reads), we estimate an abundance of $0.3\%$ ($0.24\%$) for \textit{E.~coli}, corresponding to a mean per-base coverage of $20.7\times$. %TODO
 
 \begin{table}[t]
 \processtable{Performance of error correction}
