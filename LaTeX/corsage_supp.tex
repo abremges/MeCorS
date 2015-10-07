@@ -52,7 +52,7 @@ SAG  & mean & std.dev & min & max & Q1 & Q2 & Q3 \\
 bla bla}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \includegraphics[width=.5\textwidth]{sag_depth}
 \caption{Per-base coverage for the eight \textit{E. coli} SAGs.}
@@ -64,6 +64,12 @@ bla bla}
 
 \textit{Probably also include a tree containing all 26 genomes, based on their 16S (or -- simpler -- extracted from iTOL, as all are known!). This might be of interest to see how closely related the stuff in there is. Discuss with others!}
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{tree_normal}
+\caption{phyloT/iTOL \citep{itol,itol2} phylogenetic tree of the 26 members of the mock metagenome.}
+\end{figure*}
+
 \section{Metrics per SAG}
 
 \textit{Read-based in Table \textbf{S3}, assembly-based in Tables \textbf{S4} and \textbf{S5}.}
@@ -73,7 +79,6 @@ bla bla}
 \textit{Assembly parameters (k) were tuned to maximize the NG50 value of the BayesHammer + SPAdes assembly. Changing from the default -k 21,33,55 to -k 21,33,55,77 produced better assemblies, thus we picked this combination. -{}-careful reduces the number of misassemblies by (1) less aggressive assemby and (2) polishing of the contigs in a postprocessing step involving read mapping.}
 
 \bibliography{corsage_refs}
-\newpage
 
 \begin{table*}[p]
 \processtable{Profile of the mock metagenome.}
@@ -81,71 +86,71 @@ bla bla}
 %\begin{tabular}{p{1.1cm}p{1.5cm}p{1.4cm}p{1.5cm}p{1.4cm}} %.0
 \begin{tabular}{lrrrr}
 \toprule
-ContigID & ContigLength & MappedReads & AvgCoverage \\ %TODO Molarity
+NCBI Taxonomy ID & Scientific name & ContigLength & MappedReads & AvgCoverage \\ %TODO Molarity
 \midrule
-Desulfosporosinus acidophilus SJ4, DSM 22704 : Desaci\_Contig240.3 & 3897 & 367804 & 13410.8450089813 \\
-Desulfosporosinus acidophilus SJ4, DSM 22704 : Desaci\_Contig241.2 & 60447 & 2309615 & 5644.16513640048 \\
-Desulfosporosinus acidophilus SJ4, DSM 22704 : Desaci\_Contig243.1 & 4926837 & 50525496 & 1520.41947886646 \\
+646529 & Desulfosporosinus acidophilus SJ4 : Contig240.3 & 3897 & 367804 & 13410.8450089813 \\
+&Desulfosporosinus acidophilus SJ4 : Contig241.2 & 60447 & 2309615 & 5644.16513640048 \\
+&Desulfosporosinus acidophilus SJ4 : Contig243.1 & 4926837 & 50525496 & 1520.41947886646 \\
 \hline
-Desulfotomaculum gibsoniae Groll, DSM 7213 : Desgi\_Contig329.1 & 4855529 & 24329020 & 741.835021889479 \\
+767817 & Desulfotomaculum gibsoniae DSM 7213 & 4855529 & 24329020 & 741.835021889479 \\
 \hline
-Desulfosporosinus meridiei S10, DSM 13257 : Desmer\_Contig92.1 & 4873567 & 16066750 & 487.573607585573 \\
+768704 & Desulfosporosinus meridiei DSM 13257 & 4873567 & 16066750 & 487.573607585573 \\
 \hline
-Echinicola vietnamensis KMM 6221, DSM 17526 : Echvi\_Contig97.1 & 5608040 & 2160987 & 57.2232760465332 \\
+926556 & Echinicola vietnamensis DSM 17526 & 5608040 & 2160987 & 57.2232760465332 \\
 \hline
-Fervidobacterium pennivorans Ven5, DSM 9078 : Ferpe\_Contig798.1 & 2166381 & 39566833 & 2708.24050709455 \\
+771875 & Fervidobacterium pennivorans DSM 9078 & 2166381 & 39566833 & 2708.24050709455 \\
 \hline
-Frateuria aurantia Kondo 67, DSM 6220 : Fraau\_Contig24.1 & 3603458 & 13922996 & 568.15908080516 \\
+767434 & Frateuria aurantia DSM 6220 & 3603458 & 13922996 & 568.15908080516 \\
 \hline
-Halovivax ruber XH-70, DSM 18193 : Halru\_Contig\_35 & 3223876 & 6060380 & 274.952728640928 \\
+797302 & Halovivax ruber XH-70 & 3223876 & 6060380 & 274.952728640928 \\
 \hline
-NC\_000913 Escherichia coli str. K-12 substr. MG1655 chromosome. & 4639675 & 647555 & 20.6521661538793 \\
+511145 & Escherichia coli str. K-12 substr. MG1655 & 4639675 & 647555 & 20.6521661538793 \\
 \hline
-NC\_008261 Clostridium perfringens ATCC 13124, complete genome. & 3256683 & 1461840 & 66.5510195496461 \\
+195103 & Clostridium perfringens ATCC 13124 & 3256683 & 1461840 & 66.5510195496461 \\
 \hline
-NC\_009012 Clostridium thermocellum ATCC 27405, complete genome. & 3843301 & 1542460 & 59.6166532363715 \\
+203119 & Clostridium thermocellum ATCC 27405 & 3843301 & 1542460 & 59.6166532363715 \\
 \hline
-NC\_012982 Hirschia baltica ATCC 49814, complete genome. & 3455622 & 27502745 & 1182.5057080896 \\
-NC\_012983 Hirschia baltica ATCC 49814 plasmid pHbal01 & 84492 & 641481 & 1126.13552762392 \\
+582402 & Hirschia baltica ATCC 49814 & 3455622 & 27502745 & 1182.5057080896 \\
+&Hirschia baltica ATCC 49814 plasmid pHbal01 & 84492 & 641481 & 1126.13552762392 \\
 \hline
-NC\_014008 Coraliomargarita akajimensis DSM 45221 chromosome. & 3750771 & 11810956 & 467.028614916773 \\
+583355 & Coraliomargarita akajimensis DSM 45221 & 3750771 & 11810956 & 467.028614916773 \\
 \hline
-NC\_014168 Segniliparus rotundus DSM 44985 chromosome. & 3157527 & 4886507 & 225.630138079579 \\
+640132 & Segniliparus rotundus DSM 44985 & 3157527 & 4886507 & 225.630138079579 \\
 \hline
-NC\_014210 Nocardiopsis dassonvillei subsp. dassonvillei DSM 43111 chromosome. & 5767958 & 5761 & 0.0573058957780206 \\
-NC\_014211 Nocardiopsis dassonvillei subsp. dassonvillei DSM 43111 plasmid pNDAS01. & 775354 & 879 & 0.0682900971685192 \\
+446468 & Nocardiopsis dassonvillei subsp. dassonvillei DSM 43111 & 5767958 & 5761 & 0.0573058957780206 \\
+&Nocardiopsis dassonvillei subsp. dassonvillei DSM 43111 plasmid pNDAS01 & 775354 & 879 & 0.0682900971685192 \\
 \hline
-NC\_014212 Meiothermus silvanus DSM 9946 chromosome. & 3249394 & 27813938 & 1261.46624232088 \\
-NC\_014213 Meiothermus silvanus DSM 9946 plasmid pMESIL01. & 347854 & 3461768 & 1466.53106188228 \\
-NC\_014214 Meiothermus silvanus DSM 9946 plasmid pMESIL02. & 124421 & 955914 & 1123.36214947637 \\
+526227 & Meiothermus silvanus DSM 9946 & 3249394 & 27813938 & 1261.46624232088 \\
+&Meiothermus silvanus DSM 9946 plasmid pMESIL01 & 347854 & 3461768 & 1466.53106188228 \\
+&Meiothermus silvanus DSM 9946 plasmid pMESIL02 & 124421 & 955914 & 1123.36214947637 \\
 \hline
-NC\_014363 Olsenella uli DSM 7084 chromosome. & 2051896 & 7839526 & 552.985752201866 \\
+633147 & Olsenella uli DSM 7084 & 2051896 & 7839526 & 552.985752201866 \\
 \hline
-NC\_014364 Spirochaeta smaragdinae DSM 11293 chromosome. & 4653970 & 39431130 & 1255.9706035922 \\
+573413 & Spirochaeta smaragdinae DSM 11293 & 4653970 & 39431130 & 1255.9706035922 \\
 \hline
-Natronobacterium gregoryi SP2, DSM 3393 : Natgr\_Contig127.1 & 3788356 & 8676937 & 335.230170554193 \\
+797304 & Natronobacterium gregoryi SP2 & 3788356 & 8676937 & 335.230170554193 \\
 \hline
-Natronococcus occultus SP4, DSM 3396 : Natoc\_Contig265 & 12939 & 243363 & 2564.16840559549 \\
-Natronococcus occultus SP4, DSM 3396 : Natoc\_Contig266 & 287963 & 819298 & 396.405625028215 \\
-Natronococcus occultus SP4, DSM 3396 : Natoc\_Contig267 & 4013216 & 11443075 & 397.25378947956 \\
+694430 & Natronococcus occultus SP4 : Contig265 & 12939 & 243363 & 2564.16840559549 \\
+&Natronococcus occultus SP4 : Contig266 & 287963 & 819298 & 396.405625028215 \\
+&Natronococcus occultus SP4 : Contig267 & 4013216 & 11443075 & 397.25378947956 \\
 \hline
-Pseudomonas stutzeri RCH2 : Psest\_Contig40.4 & 2804 & 62801 & 3135.38908701855 \\
-Pseudomonas stutzeri RCH2 : Psest\_Contig44.3 & 9865 & 4321 & 64.2942726811961 \\
-Pseudomonas stutzeri RCH2 : Psest\_Contig45.2 & 12763 & 54681 & 630.421844393951 \\
-Pseudomonas stutzeri RCH2 : Psest\_Contig47.1 & 4575057 & 5326365 & 171.651879965649 \\
+644801 & Pseudomonas stutzeri RCH2 : Contig40.4 & 2804 & 62801 & 3135.38908701855 \\
+&Pseudomonas stutzeri RCH2 : Contig44.3 & 9865 & 4321 & 64.2942726811961 \\
+&Pseudomonas stutzeri RCH2 : Contig45.2 & 12763 & 54681 & 630.421844393951 \\
+&Pseudomonas stutzeri RCH2 : Contig47.1 & 4575057 & 5326365 & 171.651879965649 \\
 \hline
-Terriglobus roseus KBS 63, DSM 18391 : Terro\_Contig51.1 & 5227858 & 8464573 & 239.329327805002 \\
+926566 & Terriglobus roseus DSM 18391 & 5227858 & 8464573 & 239.329327805002 \\
 \hline
-Thermobacillus composti KWC4, DSM 18247 : Theco\_Contig54.2 & 149182 & 1912248 & 1900.01226689547 \\
-Thermobacillus composti KWC4, DSM 18247 : Theco\_Contig56.1 & 4206343 & 29042078 & 1016.11924491179 \\
+717605 & Thermobacillus composti KWC4 : Contig54.2 & 149182 & 1912248 & 1900.01226689547 \\
+&Thermobacillus composti KWC4 : Contig56.1 & 4206343 & 29042078 & 1016.11924491179 \\
 \hline
-gi 14286347 gb AE004092.1  Streptococcus pyogenes M1 GAS, complete genome & 1852441 & 1502208 & 120.443499145182 \\
+160490 & Streptococcus pyogenes M1 GAS & 1852441 & 1502208 & 120.443499145182 \\
 \hline
-gi 161501984 ref NC\_010067.1  Salmonella enterica subsp. arizonae serovar 62:z4,z23:- str. RSK2980 chromosome & 4600800 & 1831145 & 58.7192305685968 \\
+882884 & Salmonella enterica subsp. arizonae serovar 62:z4,z23:- str. RSK2980 & 4600800 & 1831145 & 58.7192305685968 \\
 \hline
-gi 339998036 ref NC\_015761.1  Salmonella bongori NCTC 12419 & 4460105 & 501312 & 16.60908140055 \\
+218493 & Salmonella bongori NCTC 12419 & 4460105 & 501312 & 16.60908140055 \\
 \hline
-gi 58036263 ref NC\_003450.3  Corynebacterium glutamicum ATCC 13032 & 3309401 & 1063668 & 47.6651768703762 \\
+196627 & Corynebacterium glutamicum ATCC 13032 & 3309401 & 1063668 & 47.6651768703762 \\
 \botrule
 \end{tabular}}{Describe methods: mapping of raw reads with bwa mem \citep{bwamem} then samtools \citep{samtools},
 input from Esther is needed. 
