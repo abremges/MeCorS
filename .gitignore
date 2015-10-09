@@ -1,4 +1,5 @@
 corsage
+*.o
 *.aux
 *.bbl
 *.blg
