@@ -22,9 +22,9 @@ static inline void process_kmer(const uint64_t kmer) {
     if (iter >= kh_n) { // most likely not in there (or khash resized)
 		pthread_mutex_lock(&mutex_khash);
 		int ret;
-        iter = kh_put(SAG, h, kmer, &ret);
-        kh_value(h, iter) = (next_base_t) {0,0,0,0};
-        pthread_mutex_unlock(&mutex_khash);
+		iter = kh_put(SAG, h, kmer, &ret);
+		kh_value(h, iter) = (next_base_t) {0,0,0,0};
+		pthread_mutex_unlock(&mutex_khash);
     }
 }
 
