@@ -1,6 +1,6 @@
 #include "corsage.h"
 
-void process_kmer(const uint64_t kmer, const int base) {
+static inline void process_kmer(const uint64_t kmer, const int base) {
     khiter_t iter = kh_get(SAG, h, kmer);
     if (iter != kh_end(h)) {
         next_base_t *p_next = &(kh_value(h, iter));
