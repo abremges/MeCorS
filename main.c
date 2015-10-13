@@ -90,6 +90,7 @@ int main(int argc, char *argv[]) {
     h = kh_init(SAG);
     main_init(opt);
     main_fill(opt);
+    main_corr(opt);
     kh_destroy(SAG, h);
     return 0;
 }

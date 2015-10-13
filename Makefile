@@ -3,7 +3,7 @@ PROG=corsage
 CC=gcc
 CFLAGS=-Wall -pedantic -std=gnu99 -O3
 INCLUDES=-I.
-OBJS=kthread.o bseq.o init.o fill.o
+OBJS=kthread.o bseq.o init.o fill.o corr.o
 LIBS=-lm -lz -lpthread
 
 .SUFFIXES:.c .o

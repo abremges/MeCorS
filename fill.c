@@ -1,19 +1,5 @@
 #include "corsage.h"
 
-void kt_for(int n_threads, void (*func)(void*,long,int), void *data, long n);
-void kt_pipeline(int n_threads, void *(*func)(void*, int, void*), void *shared_data, int n_steps);
-
-typedef struct {
-	int batch_size, n_processed, n_threads;
-	bseq_file_t *fp;
-} pipeline_t;
-
-typedef struct {
-	const pipeline_t *p;
-    int n_seq;
-	bseq1_t *seq;
-} step_t;
-
 void process_kmer(const uint64_t kmer, const int base) {
     khiter_t iter = kh_get(SAG, h, kmer);
     if (iter != kh_end(h)) {
@@ -35,7 +21,7 @@ void process_kmer(const uint64_t kmer, const int base) {
     }
 }
 
-void process_read(const bseq1_t *read, const int k) {
+static inline void process_read(const bseq1_t *read, const int k) {
     uint64_t forward = 0;
     uint64_t reverse = 0;
     for (int i = 0, index = 1; i < read->l_seq; ++i, ++index) { // 1-based index
@@ -75,7 +61,7 @@ static void *worker_pipeline(void *shared, int step, void *in) {
 		} else {
             free(s);
         }
-    } else if (step == 1) { // step 1: fill hash with kmers
+    } else if (step == 1) { // step 1: update hash with values
 		kt_for(p->n_threads, worker_for, in, ((step_t*)in)->n_seq);
 		return in;
     } else if (step == 2) { // step 2: output and clean up

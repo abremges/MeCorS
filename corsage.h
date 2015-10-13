@@ -22,6 +22,20 @@ typedef struct {
 	uintmax_t n_total1, n_total2, n_meta;
 } corsage_t;
 
+typedef struct {
+	int batch_size, n_processed, n_threads;
+	bseq_file_t *fp;
+} pipeline_t;
+
+typedef struct {
+	const pipeline_t *p;
+    int n_seq;
+	bseq1_t *seq;
+} step_t;
+
+void kt_for(int n_threads, void (*func)(void*,long,int), void *data, long n);
+void kt_pipeline(int n_threads, void *(*func)(void*, int, void*), void *shared_data, int n_steps);
+
 extern int verbose;
 extern corsage_t opt;
 
@@ -29,5 +43,6 @@ extern unsigned char seq_fwd_table[128];
 
 int main_init();
 int main_fill();
+int main_corr();
 
 #endif /* CORSAGE_H */
