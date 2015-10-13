@@ -21,11 +21,11 @@ static inline void process_kmer(const uint64_t kmer, const int base) {
     }
 }
 
-static inline void process_read(const bseq1_t *read, const int k) {
+static inline void process_read(const bseq1_t read, const int k) {
     uint64_t forward = 0;
     uint64_t reverse = 0;
-    for (int i = 0, index = 1; i < read->l_seq; ++i, ++index) { // 1-based index
-        int c = seq_fwd_table[(int) read->seq[i]];
+    for (int i = 0, index = 1; i < read.l_seq; ++i, ++index) { // 1-based index
+        int c = seq_fwd_table[(int) read.seq[i]];
         if (c < 4) {
             forward = (((forward << 2) | c) & ((1ULL<<k*2)-1));
             reverse = ((reverse >> 2) | (((uint64_t) (c^3)) << ((k*2)-2)));
@@ -33,17 +33,15 @@ static inline void process_read(const bseq1_t *read, const int k) {
             index = 0;
         }
         if (index >= k) {
-            if (i < read->l_seq-1) process_kmer(forward, seq_fwd_table[(int) read->seq[i+1]]); // OK
-            if (i >= k) process_kmer(reverse, seq_fwd_table[(int) read->seq[i-k]]^3); // OK
+            if (i < read.l_seq-1) process_kmer(forward, seq_fwd_table[(int) read.seq[i+1]]); // OK
+            if (i >= k) process_kmer(reverse, seq_fwd_table[(int) read.seq[i-k]]^3); // OK
         }
     }
 }
 
 static void worker_for(void *_data, long i, int tid) { // kt_for() callback
     step_t *s = (step_t*)_data;
-    for (i = 0; i < s->n_seq; ++i) {
-        process_read(s->seq, opt.k);
-    }
+    process_read(s->seq[i], opt.k);
 }
 
 static void *worker_pipeline(void *shared, int step, void *in) {

@@ -49,7 +49,7 @@ bseq1_t *bseq_read(bseq_file_t *fp, int chunk_size, int *n_)
 		s->name = strdup(ks->name.s);
 		s->seq = strdup(ks->seq.s);
 		if (ks->qual.l) s->qual = strdup(ks->qual.s);
-		//TODO Currently, this strips all comments. 
+		//TODO Currently, this strips all comments.
 		s->l_seq = ks->seq.l;
 		s->l_qual = ks->qual.l;
 		size += seqs[n++].l_seq;

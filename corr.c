@@ -21,12 +21,12 @@ inline int baseCorrect(const int base, const next_base_t next) {
     return -1;
 }
 
-static inline int process_read(const bseq1_t *read, const int k) {
+static inline int process_read(const bseq1_t read, const int k) {
     int failed = 0;
     int corrected = 0;
     uint64_t forward = 0;
-    for (int i = 0, index = 1; i < read->l_seq-1; ++i, ++index) { // stops 1 char before end to look ahead!
-        int c = seq_fwd_table[(int) read->seq[i]];
+    for (int i = 0, index = 1; i < read.l_seq-1; ++i, ++index) { // stops 1 char before end to look ahead!
+        int c = seq_fwd_table[(int) read.seq[i]];
         if (c < 4) {
             forward = (((forward << 2) | c) & ((1ULL<<k*2)-1));
         } else {
@@ -37,24 +37,24 @@ static inline int process_read(const bseq1_t *read, const int k) {
             khiter_t iter = kh_get(SAG, h, forward);
             if (iter != kh_end(h)) {
                 next_base_t next = kh_value(h, iter); // supported 32nd bases
-                int base = seq_fwd_table[(int)read->seq[i+1]]; // current base
+                int base = seq_fwd_table[(int)read.seq[i+1]]; // current base
                 int sbase = baseCorrect(base, next);
                 if (base != sbase) { // Correction needed
                     switch (sbase) {
                         case 0:
-                            read->seq[i+1] = 'A';
+                            read.seq[i+1] = 'A';
                             ++corrected;
                             break;
                         case 1:
-                            read->seq[i+1] = 'C';
+                            read.seq[i+1] = 'C';
                             ++corrected;
                             break;
                         case 2:
-                            read->seq[i+1] = 'G';
+                            read.seq[i+1] = 'G';
                             ++corrected;
                             break;
                         case 3:
-                            read->seq[i+1] = 'T';
+                            read.seq[i+1] = 'T';
                             ++corrected;
                             break;
                         default:
@@ -82,30 +82,42 @@ char comp_tab[] = {
     64, 't', 'v', 'g', 'h', 'e', 'f', 'c', 'd', 'i', 'j', 'm', 'l', 'k', 'n', 'o',
     'p', 'q', 'y', 's', 'a', 'a', 'b', 'w', 'x', 'r', 'z', 123, 124, 125, 126, 127
 };
-void seq_revcomp(bseq1_t *seq) {
+void seq_revcomp(bseq1_t seq) {
     int c0, c1;
-    for (int i = 0; i < seq->l_seq>>1; ++i) { // reverse complement sequence
-        c0 = comp_tab[(int)seq->seq[i]];
-        c1 = comp_tab[(int)seq->seq[seq->l_seq - 1 - i]];
-        seq->seq[i] = c1;
-        seq->seq[seq->l_seq - 1 - i] = c0;
+    for (int i = 0; i < seq.l_seq>>1; ++i) { // reverse complement sequence
+        c0 = comp_tab[(int)seq.seq[i]];
+        c1 = comp_tab[(int)seq.seq[seq.l_seq - 1 - i]];
+        seq.seq[i] = c1;
+        seq.seq[seq.l_seq - 1 - i] = c0;
     }
-    if (seq->l_seq & 1) // complement the remaining base
-    seq->seq[seq->l_seq>>1] = comp_tab[(int)seq->seq[seq->l_seq>>1]];
-    if (seq->l_qual) {
-        for (int i = 0; i < seq->l_seq>>1; ++i) // reverse quality
-        c0 = seq->qual[i], seq->qual[i] = seq->qual[seq->l_qual - 1 - i], seq->qual[seq->l_qual - 1 - i] = c0;
+    if (seq.l_seq & 1) // complement the remaining base
+    seq.seq[seq.l_seq>>1] = comp_tab[(int)seq.seq[seq.l_seq>>1]];
+    if (seq.l_qual) {
+        for (int i = 0; i < seq.l_seq>>1; ++i) // reverse quality
+        c0 = seq.qual[i], seq.qual[i] = seq.qual[seq.l_qual - 1 - i], seq.qual[seq.l_qual - 1 - i] = c0;
     }
 }
 
 static void worker_for(void *_data, long i, int tid) { // kt_for() callback
     step_t *s = (step_t*)_data;
-    for (i = 0; i < s->n_seq; ++i) {
-		if (process_read(s->seq, opt.k)) {
-			seq_revcomp(s->seq);
-			process_read(s->seq, opt.k);
-			seq_revcomp(s->seq);
-		}
+	if (process_read(s->seq[i], opt.k)) {
+		seq_revcomp(s->seq[i]);
+		process_read(s->seq[i], opt.k);
+		seq_revcomp(s->seq[i]);
+	}
+}
+
+inline void stk_printseq(const bseq1_t s) {
+    fputc(s.l_qual? '@' : '>', stdout);
+    fputs(s.name, stdout);
+    //TODO Take care of comments
+    fputc('\n', stdout);
+    fputs(s.seq, stdout);
+    fputc('\n', stdout);
+    if (s.l_qual) {
+        fputs("+\n", stdout);
+        fputs(s.qual, stdout);
+        fputc('\n', stdout);
     }
 }
 
@@ -130,6 +142,7 @@ static void *worker_pipeline(void *shared, int step, void *in) {
     } else if (step == 2) { // step 2: output and clean up
         step_t *s = (step_t*)in;
 		for (int i = 0; i < s->n_seq; ++i) {
+			stk_printseq(s->seq[i]);
             free(s->seq[i].name);
 			free(s->seq[i].seq);
             free(s->seq[i].qual);
@@ -141,7 +154,7 @@ static void *worker_pipeline(void *shared, int step, void *in) {
 }
 
 int main_corr(const corsage_t opt) {
-    fprintf(stderr, "Fill.\n");
+    fprintf(stderr, "Corr.\n");
     pipeline_t pl;
     memset(&pl, 0, sizeof(pipeline_t));
     pl.fp = bseq_open(opt.one);

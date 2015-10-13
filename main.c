@@ -67,8 +67,7 @@ int main(int argc, char *argv[]) {
                 break;
             case 't':
                 opt.n_threads = atoi(optarg);
-                if (opt.n_threads < 15) opt.n_threads = 15;
-                if (opt.n_threads > 31) opt.n_threads = 31;
+                if (opt.n_threads < 1) opt.n_threads = 1;
                 break;
             case 'B': {
                 char *p;
@@ -94,19 +93,3 @@ int main(int argc, char *argv[]) {
     kh_destroy(SAG, h);
     return 0;
 }
-
-// inline void stk_printseq(const bseq1_t *s) {
-//     pthread_mutex_lock(&mutex_stdio);
-//     fputc(s->l_qual? '@' : '>', stdout);
-//     fputs(s->name, stdout);
-//     //TODO Take care of comments
-//     fputc('\n', stdout);
-//     fputs(s->seq, stdout);
-//     fputc('\n', stdout);
-//     if (s->l_qual) {
-//         fputs("+\n", stdout);
-//         fputs(s->qual, stdout);
-//         fputc('\n', stdout);
-//     }
-//     pthread_mutex_unlock(&mutex_stdio);
-// }
