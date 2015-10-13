@@ -10,7 +10,7 @@
 #include "bseq.h"
 #include "khash.h"
 typedef struct next_base {
-    uint8_t a, c, g, t;
+    volatile uint8_t a, c, g, t;
 } next_base_t;
 KHASH_MAP_INIT_INT64(SAG, next_base_t)
 khash_t(SAG) *h;
@@ -28,5 +28,6 @@ extern corsage_t opt;
 extern unsigned char seq_fwd_table[128];
 
 int main_init();
+int main_fill();
 
 #endif /* CORSAGE_H */

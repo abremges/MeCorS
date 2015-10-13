@@ -51,7 +51,7 @@ static inline void process_read(const bseq1_t *read, const int k) {
 static void worker_for(void *_data, long i, int tid) { // kt_for() callback
     step_t *s = (step_t*)_data;
     for (i = 0; i < s->n_seq; ++i) {
-        process_read(s->seq, 31);
+        process_read(s->seq, opt.k);
     }
 }
 
@@ -94,7 +94,7 @@ int main_init(const corsage_t opt) {
     pipeline_t pl;
     memset(&pl, 0, sizeof(pipeline_t));
     pl.fp = bseq_open(opt.one);
-    if (pl.fp == 0) return -1;
+    if (pl.fp == 0) return -1; //TODO
     pl.n_threads = opt.n_threads, pl.batch_size = opt.batch_size;
     kt_pipeline(opt.n_threads, worker_pipeline, &pl, 3);
     fprintf(stderr, "Done.\n");

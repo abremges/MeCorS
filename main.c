@@ -86,10 +86,10 @@ int main(int argc, char *argv[]) {
                 return usage();
         }
     }
-    if(!opt.one) return usage(); // || !opt.two) return usage(opt);
+    if(!opt.one || !opt.two) return usage(); // || !opt.two) return usage(opt);
     h = kh_init(SAG);
     main_init(opt);
-
+    main_fill(opt);
     kh_destroy(SAG, h);
     return 0;
 }
