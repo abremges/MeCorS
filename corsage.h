@@ -1,11 +1,11 @@
 #ifndef CORSAGE_H
 #define CORSAGE_H
 
-#include <inttypes.h> // uint64_t
-#include <pthread.h>  // mutex
-#include <stdio.h>    // printf
-#include <unistd.h>   // getopt
-#include <zlib.h>     // gzip
+#include <inttypes.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <zlib.h>
 
 #include "bseq.h"
 #include "khash.h"

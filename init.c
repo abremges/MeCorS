@@ -1,6 +1,6 @@
 #include "corsage.h"
 
-pthread_mutex_t mutex_khash;
+pthread_rwlock_t rwlock_khash;
 
 void kt_for(int n_threads, void (*func)(void*,long,int), void *data, long n);
 void kt_pipeline(int n_threads, void *(*func)(void*, int, void*), void *shared_data, int n_steps);
@@ -17,14 +17,16 @@ typedef struct {
 } step_t;
 
 static inline void process_kmer(const uint64_t kmer) {
-	khiter_t kh_n = kh_end(h); // first get number of buckets in khash
-    khiter_t iter = kh_get(SAG, h, kmer); // then query k-mer position
-    if (iter >= kh_n) { // most likely not in there (or khash resized)
-		pthread_mutex_lock(&mutex_khash);
+	pthread_rwlock_rdlock(&rwlock_khash);
+    khiter_t iter = kh_get(SAG, h, kmer);
+	int is_missing = (iter == kh_end(h));
+	pthread_rwlock_unlock(&rwlock_khash);
+    if (is_missing) {
 		int ret;
+		pthread_rwlock_wrlock(&rwlock_khash);
 		iter = kh_put(SAG, h, kmer, &ret);
 		kh_value(h, iter) = (next_base_t) {0,0,0,0};
-		pthread_mutex_unlock(&mutex_khash);
+		pthread_rwlock_unlock(&rwlock_khash);
     }
 }
 
@@ -85,7 +87,8 @@ static void *worker_pipeline(void *shared, int step, void *in) {
 }
 
 int main_init(const corsage_t opt) {
-    pthread_mutex_init(&mutex_khash, NULL);
+    pthread_rwlock_init(&rwlock_khash, NULL);
+	//TODO Prevent writer starvation
 
     fprintf(stderr, "Init.\n");
     pipeline_t pl;
@@ -95,6 +98,6 @@ int main_init(const corsage_t opt) {
     pl.n_threads = opt.n_threads, pl.batch_size = opt.batch_size;
     kt_pipeline(opt.n_threads, worker_pipeline, &pl, 3);
     fprintf(stderr, "Done.\n");
-
+	pthread_rwlock_destroy(&rwlock_khash);
     return 0;
 }
