@@ -6,16 +6,16 @@ static inline void process_kmer(const uint64_t kmer, const int base) {
         next_base_t *p_next = &(kh_value(h, iter));
         switch (base) {
             case 0:
-                if (p_next->a < 255) __sync_fetch_and_add(&(p_next->a), 1); //TODO Prevent overflow
+                if (p_next->a < 60000) __sync_fetch_and_add(&(p_next->a), 1);
                 break;
             case 1:
-                if (p_next->c < 255) __sync_fetch_and_add(&(p_next->c), 1);
+                if (p_next->c < 60000) __sync_fetch_and_add(&(p_next->c), 1);
                 break;
             case 2:
-                if (p_next->g < 255) __sync_fetch_and_add(&(p_next->g), 1);
+                if (p_next->g < 60000) __sync_fetch_and_add(&(p_next->g), 1);
                 break;
             case 3:
-                if (p_next->t < 255) __sync_fetch_and_add(&(p_next->t), 1);
+                if (p_next->t < 60000) __sync_fetch_and_add(&(p_next->t), 1);
                 break;
         }
     }

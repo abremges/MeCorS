@@ -10,7 +10,7 @@
 #include "bseq.h"
 #include "khash.h"
 typedef struct next_base {
-    volatile uint8_t a, c, g, t;
+    volatile uint16_t a, c, g, t;
 } next_base_t;
 KHASH_MAP_INIT_INT64(SAG, next_base_t)
 khash_t(SAG) *h;
