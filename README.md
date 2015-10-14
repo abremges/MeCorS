@@ -1,5 +1,5 @@
 corsage [![Build Status](https://magnum.travis-ci.com/abremges/corsage.svg?token=Ebg4XZAcowyajM89NgpH&branch=master)](https://magnum.travis-ci.com/abremges/corsage)
-=====
+======
 
 Metagenome-enabled error correction of single cell sequencing reads
 
@@ -16,6 +16,6 @@ Metagenome-enabled error correction of single cell sequencing reads
            -B NUM         process ~NUM bp in each batch [100M]
            -v             be verbose
 
-=====
+======
 *Heavily relies on on [klib](https://github.com/attractivechaos/klib).
 Source code in part adopted from – or inspired by – [Heng Li](https://github.com/lh3).*
