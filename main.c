@@ -1,6 +1,6 @@
 #include "corsage.h"
 
-#define VERSION "0.3.0-alpha"
+#define VERSION "0.3.0"
 
 corsage_t opt = {.one = NULL, .two = NULL,    \
     .k = 31, .min_cov = 2,                    \
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
                 return usage();
         }
     }
-    if(!opt.one || !opt.two) return usage(); // || !opt.two) return usage(opt);
+    if(!opt.one || !opt.two) return usage();
 
     corsage_real_time = realtime();
     if (corsage_verbose) fprintf(stderr, "[%.1f] this is corsage, version %s\n", realtime() - corsage_real_time, VERSION);
