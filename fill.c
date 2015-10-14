@@ -66,7 +66,7 @@ static void *worker_pipeline(void *shared, int step, void *in) {
 		kt_for(p->n_threads, worker_for, in, s->n_seq);
         if (corsage_verbose) fprintf(stderr, "\t[%.1f] processed %" PRIuMAX " metagenome sequences\n", realtime() - corsage_real_time, opt.n_fill);
 		return in;
-    } else if (step == 2) { // step 2: output and clean up
+    } else if (step == 2) { // step 2: clean up
         step_t *s = (step_t*)in;
 		for (int i = 0; i < s->n_seq; ++i) {
             free(s->seq[i].name);
