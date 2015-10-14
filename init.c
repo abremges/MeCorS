@@ -42,7 +42,9 @@ static void *worker_pipeline(void *shared, int step, void *in) {
     if (step == 0) { // step 0: read batch of sequences
         step_t *s;
         s = (step_t*)calloc(1, sizeof(step_t));
-		s->seq = bseq_read(p->fp, p->batch_size, &s->n_seq);
+		s->seq = bseq_read(p->fp, p->batch_size, &s->n_seq, 0, 0);
+		opt.n_init += s->n_seq;
+		if (corsage_verbose) fprintf(stderr, "\t[%.1f] read %" PRIuMAX " single cell sequences\n", realtime() - corsage_real_time, opt.n_init);
 		if (s->seq) {
 			s->p = p;
 			for (int i = 0; i < s->n_seq; ++i) {
@@ -53,14 +55,17 @@ static void *worker_pipeline(void *shared, int step, void *in) {
             free(s);
         }
     } else if (step == 1) { // step 1: fill hash with kmers
-		kt_for(p->n_threads, worker_for, in, ((step_t*)in)->n_seq);
+		step_t *s = (step_t*)in;
+		kt_for(p->n_threads, worker_for, in, s->n_seq);
+		if (corsage_verbose) fprintf(stderr, "\t[%.1f] processed %" PRIuMAX " single cell sequences\n", realtime() - corsage_real_time, opt.n_init);
 		return in;
     } else if (step == 2) { // step 2: clean up
         step_t *s = (step_t*)in;
 		for (int i = 0; i < s->n_seq; ++i) {
             free(s->seq[i].name);
 			free(s->seq[i].seq);
-            free(s->seq[i].qual);
+            if (s->seq[i].l_qual) free(s->seq[i].qual);
+			if (s->seq[i].l_comment) free(s->seq[i].comment);
 		}
 		free(s->seq);
 		free(s);
@@ -69,13 +74,13 @@ static void *worker_pipeline(void *shared, int step, void *in) {
 }
 
 int main_init(const corsage_t opt) {
-    fprintf(stderr, "Init.\n");
+	if (corsage_verbose) fprintf(stderr, "[%.1f] initialization (always single-threaded)\n", realtime() - corsage_real_time);
     pipeline_t pl;
     memset(&pl, 0, sizeof(pipeline_t));
     pl.fp = bseq_open(opt.one);
     if (pl.fp == 0) return -1; //TODO
     pl.n_threads = 1, pl.batch_size = opt.batch_size; //Hard-coded: 1 thread
     kt_pipeline(1, worker_pipeline, &pl, 3);          //Hard-coded: 1 thread
-    fprintf(stderr, "Done.\n");
+    if (corsage_verbose) fprintf(stderr, "[%.1f] done with initialization\n", realtime() - corsage_real_time);
     return 0;
 }

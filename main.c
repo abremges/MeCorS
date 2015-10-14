@@ -2,27 +2,13 @@
 
 #define VERSION "0.3.0-alpha"
 
-// A = 00, C = 01, G = 10, T = 11, i.e. XOR with 3 -> compl.
-unsigned char seq_fwd_table[128] = {
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 0, 4, 1, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 0, 4, 1, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
-};
-unsigned char seq_rev_table[4] = {
-    'A', 'C', 'G', 'T'
-};
-
 corsage_t opt = {.one = NULL, .two = NULL,    \
     .k = 31, .min_cov = 2,                    \
     .n_threads = 16, .batch_size = 100000000, \
-    .n_total1 = 0, .n_total2 = 0, .n_meta = 0};
+    .n_init = 0, .n_fill = 0, .n_corr = 0};
 
-int verbose = 0;
+int corsage_verbose = 0;
+double corsage_real_time;
 
 ////////////////////////////////////////////////////////////////////////////////
 // main                                                                       //
@@ -79,17 +65,21 @@ int main(int argc, char *argv[]) {
                 if (opt.batch_size < 1) opt.batch_size = 1;
                 break; }
             case 'v':
-                verbose = 1;
+                corsage_verbose = 1;
                 break;
             default:
                 return usage();
         }
     }
     if(!opt.one || !opt.two) return usage(); // || !opt.two) return usage(opt);
+
+    corsage_real_time = realtime();
+    if (corsage_verbose) fprintf(stderr, "[%.1f] this is corsage, version %s\n", realtime() - corsage_real_time, VERSION);
     h = kh_init(SAG);
     main_init(opt);
     main_fill(opt);
     main_corr(opt);
     kh_destroy(SAG, h);
+    if (corsage_verbose) fprintf(stderr, "[%.1f] thank you for using corsage!\n", realtime() - corsage_real_time);
     return 0;
 }

@@ -19,7 +19,7 @@ typedef struct {
     char *one, *two;
 	int k, min_cov;
     int n_threads, batch_size;
-	uintmax_t n_total1, n_total2, n_meta;
+	uintmax_t n_init, n_fill, n_corr;
 } corsage_t;
 
 typedef struct {
@@ -35,8 +35,11 @@ typedef struct {
 
 void kt_for(int n_threads, void (*func)(void*,long,int), void *data, long n);
 void kt_pipeline(int n_threads, void *(*func)(void*, int, void*), void *shared_data, int n_steps);
+double cputime(void);
+double realtime(void);
 
-extern int verbose;
+extern int corsage_verbose;
+extern double corsage_real_time;
 extern corsage_t opt;
 
 extern unsigned char seq_fwd_table[128];
