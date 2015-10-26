@@ -1,6 +1,6 @@
 #include "corsage.h"
 
-#define VERSION "0.3.0"
+#define VERSION "0.3.1"
 
 corsage_t opt = {.one = NULL, .two = NULL,    \
     .k = 31, .min_cov = 2,                    \
