@@ -1,6 +1,6 @@
 #include "corsage.h"
 
-inline int baseCorrect(const int base, const next_base_t next) {
+inline int suggest_base(const int base, const next_base_t next) {
 	int min_cov = opt.min_cov;
 
 	// Look for support in the metagenome, if min_cov is reached don't try to correct
@@ -37,7 +37,7 @@ static inline int process_read(const bseq1_t read, const int k) {
 			if (iter != kh_end(h)) {
 				next_base_t next = kh_value(h, iter); // supported 32nd bases
 				int base = seq_fwd_table[(int)read.seq[i+1]]; // current base
-				int sbase = baseCorrect(base, next);
+				int sbase = suggest_base(base, next);
 				if (base != sbase) { // Correction needed
 					switch (sbase) {
 						case 0:
