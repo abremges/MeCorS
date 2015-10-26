@@ -13,8 +13,7 @@ struct bseq_file_s {
 	kseq_t *ks;
 };
 
-bseq_file_t *bseq_open(const char *fn)
-{
+bseq_file_t *bseq_open(const char *fn) {
 	bseq_file_t *fp;
 	gzFile f;
 	f = fn && strcmp(fn, "-")? gzopen(fn, "r") : gzdopen(fileno(stdin), "r");
@@ -25,15 +24,13 @@ bseq_file_t *bseq_open(const char *fn)
 	return fp;
 }
 
-void bseq_close(bseq_file_t *fp)
-{
+void bseq_close(bseq_file_t *fp) {
 	kseq_destroy(fp->ks);
 	gzclose(fp->fp);
 	free(fp);
 }
 
-bseq1_t *bseq_read(bseq_file_t *fp, int chunk_size, int *n_, const int with_comment, const int with_qual)
-{
+bseq1_t *bseq_read(bseq_file_t *fp, int chunk_size, int *n_, const int with_comment, const int with_qual) {
 	int size = 0, m, n;
 	bseq1_t *seqs;
 	kseq_t *ks = fp->ks;
@@ -69,7 +66,6 @@ bseq1_t *bseq_read(bseq_file_t *fp, int chunk_size, int *n_, const int with_comm
 	return seqs;
 }
 
-int bseq_eof(bseq_file_t *fp)
-{
+int bseq_eof(bseq_file_t *fp) {
 	return fp->is_eof;
 }

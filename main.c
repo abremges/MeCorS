@@ -64,22 +64,22 @@ int main(int argc, char *argv[]) {
                 opt.batch_size = (uint64_t)(x + .499);
                 if (opt.batch_size < 1) opt.batch_size = 1;
                 break; }
-            case 'v':
+                case 'v':
                 corsage_verbose = 1;
                 break;
-            default:
+                default:
                 return usage();
+            }
         }
-    }
-    if(!opt.one || !opt.two) return usage();
+        if(!opt.one || !opt.two) return usage();
 
-    corsage_real_time = realtime();
-    if (corsage_verbose) fprintf(stderr, "[%.1f] this is corsage, version %s\n", realtime() - corsage_real_time, VERSION);
-    h = kh_init(SAG);
-    main_init(opt);
-    main_fill(opt);
-    main_corr(opt);
-    kh_destroy(SAG, h);
-    if (corsage_verbose) fprintf(stderr, "[%.1f] thank you for using corsage!\n", realtime() - corsage_real_time);
-    return 0;
-}
+        corsage_real_time = realtime();
+        if (corsage_verbose) fprintf(stderr, "[%.1f] this is corsage, version %s\n", realtime() - corsage_real_time, VERSION);
+        h = kh_init(SAG);
+        main_init(opt);
+        main_fill(opt);
+        main_corr(opt);
+        kh_destroy(SAG, h);
+        if (corsage_verbose) fprintf(stderr, "[%.1f] thank you for using corsage!\n", realtime() - corsage_real_time);
+        return 0;
+    }

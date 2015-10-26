@@ -17,20 +17,20 @@ khash_t(SAG) *h;
 
 typedef struct {
     char *one, *two;
-	int k, min_cov;
+    int k, min_cov;
     int n_threads, batch_size;
-	uintmax_t n_init, n_fill, n_corr;
+    uintmax_t n_init, n_fill, n_corr;
 } corsage_t;
 
 typedef struct {
-	int batch_size, n_processed, n_threads;
-	bseq_file_t *fp;
+    int batch_size, n_processed, n_threads;
+    bseq_file_t *fp;
 } pipeline_t;
 
 typedef struct {
-	const pipeline_t *p;
+    const pipeline_t *p;
     int n_seq;
-	bseq1_t *seq;
+    bseq1_t *seq;
 } step_t;
 
 void kt_for(int n_threads, void (*func)(void*,long,int), void *data, long n);

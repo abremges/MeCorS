@@ -8,9 +8,9 @@
 static inline void process_kmer(const uint64_t kmer) {
     khiter_t iter = kh_get(SAG, h, kmer);
     if (iter == kh_end(h)) {
-		int ret;
-		iter = kh_put(SAG, h, kmer, &ret);
-		kh_value(h, iter) = (next_base_t) {0,0,0,0};
+        int ret;
+        iter = kh_put(SAG, h, kmer, &ret);
+        kh_value(h, iter) = (next_base_t) {0,0,0,0};
     }
 }
 
@@ -34,7 +34,7 @@ static inline void process_read(const bseq1_t read, const int k) {
 
 static void worker_for(void *_data, long i, int tid) { // kt_for() callback
     step_t *s = (step_t*)_data;
-	process_read(s->seq[i], opt.k);
+    process_read(s->seq[i], opt.k);
 }
 
 static void *worker_pipeline(void *shared, int step, void *in) {
@@ -42,39 +42,39 @@ static void *worker_pipeline(void *shared, int step, void *in) {
     if (step == 0) { // step 0: read batch of sequences
         step_t *s;
         s = (step_t*)calloc(1, sizeof(step_t));
-		s->seq = bseq_read(p->fp, p->batch_size, &s->n_seq, 0, 0);
-		opt.n_init += s->n_seq;
-		if (corsage_verbose) fprintf(stderr, "\t[%.1f] read %" PRIuMAX " single cell sequences\n", realtime() - corsage_real_time, opt.n_init);
-		if (s->seq) {
-			s->p = p;
-			for (int i = 0; i < s->n_seq; ++i) {
-				s->seq[i].rid = p->n_processed++;
+        s->seq = bseq_read(p->fp, p->batch_size, &s->n_seq, 0, 0);
+        opt.n_init += s->n_seq;
+        if (corsage_verbose) fprintf(stderr, "\t[%.1f] read %" PRIuMAX " single cell sequences\n", realtime() - corsage_real_time, opt.n_init);
+        if (s->seq) {
+            s->p = p;
+            for (int i = 0; i < s->n_seq; ++i) {
+                s->seq[i].rid = p->n_processed++;
             }
-			return s;
-		} else {
+            return s;
+        } else {
             free(s);
         }
     } else if (step == 1) { // step 1: fill hash with kmers
-		step_t *s = (step_t*)in;
-		kt_for(p->n_threads, worker_for, in, s->n_seq);
-		if (corsage_verbose) fprintf(stderr, "\t[%.1f] processed %" PRIuMAX " single cell sequences\n", realtime() - corsage_real_time, opt.n_init);
-		return in;
+        step_t *s = (step_t*)in;
+        kt_for(p->n_threads, worker_for, in, s->n_seq);
+        if (corsage_verbose) fprintf(stderr, "\t[%.1f] processed %" PRIuMAX " single cell sequences\n", realtime() - corsage_real_time, opt.n_init);
+        return in;
     } else if (step == 2) { // step 2: clean up
         step_t *s = (step_t*)in;
-		for (int i = 0; i < s->n_seq; ++i) {
+        for (int i = 0; i < s->n_seq; ++i) {
             free(s->seq[i].name);
-			free(s->seq[i].seq);
+            free(s->seq[i].seq);
             if (s->seq[i].l_qual) free(s->seq[i].qual);
-			if (s->seq[i].l_comment) free(s->seq[i].comment);
-		}
-		free(s->seq);
-		free(s);
-	}
+            if (s->seq[i].l_comment) free(s->seq[i].comment);
+        }
+        free(s->seq);
+        free(s);
+    }
     return 0;
 }
 
 int main_init(const corsage_t opt) {
-	if (corsage_verbose) fprintf(stderr, "[%.1f] initialization (always single-threaded)\n", realtime() - corsage_real_time);
+    if (corsage_verbose) fprintf(stderr, "[%.1f] initialization (always single-threaded)\n", realtime() - corsage_real_time);
     pipeline_t pl;
     memset(&pl, 0, sizeof(pipeline_t));
     pl.fp = bseq_open(opt.one);
