@@ -109,7 +109,10 @@ static void worker_for(void *_data, long i, int tid) { // kt_for() callback
 inline void stk_printseq(const bseq1_t s) {
 	fputc(s.l_qual? '@' : '>', stdout);
 	fputs(s.name, stdout);
-	//TODO Take care of comments
+	if (s.l_comment) {
+		fputc(' ', stdout);
+		fputs(s.comment, stdout);
+	}
 	fputc('\n', stdout);
 	fputs(s.seq, stdout);
 	fputc('\n', stdout);
