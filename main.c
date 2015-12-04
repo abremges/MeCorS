@@ -10,10 +10,6 @@ mecors_t opt = {.one = NULL, .two = NULL,    \
 int mecors_verbose = 0;
 double mecors_real_time;
 
-////////////////////////////////////////////////////////////////////////////////
-// main                                                                       //
-////////////////////////////////////////////////////////////////////////////////
-
 static int usage() {
     fprintf(stderr, "MeCorS version %s by Andreas Bremges (andreas@cebitec.uni-bielefeld.de)\n\n", VERSION);
 
