@@ -1,4 +1,4 @@
-#include "corsage.h"
+#include "mecors.h"
 
 static inline void process_kmer(const uint64_t kmer, const int base) {
     khiter_t iter = kh_get(SAG, h, kmer);

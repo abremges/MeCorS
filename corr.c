@@ -1,4 +1,4 @@
-#include "corsage.h"
+#include "mecors.h"
 
 inline int suggest_base(const int base, const next_base_t next) {
 	int min_cov = opt.min_cov;

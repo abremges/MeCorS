@@ -1,4 +1,4 @@
-#include "corsage.h"
+#include "mecors.h"
 
 #define VERSION "0.3.1"
 
