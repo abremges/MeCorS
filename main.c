@@ -76,9 +76,18 @@ int main(int argc, char *argv[]) {
         mecors_real_time = realtime();
         if (mecors_verbose) fprintf(stderr, "[%.1f] this is MeCorS, version %s\n", realtime() - mecors_real_time, VERSION);
         h = kh_init(SAG);
-        main_init(opt);
-        main_fill(opt);
-        main_corr(opt);
+        if (main_init(opt)) {
+            kh_destroy(SAG, h);
+            return 1;
+        }
+        if (main_fill(opt)) {
+            kh_destroy(SAG, h);
+            return 1;
+        }
+        if (main_corr(opt)) {
+            kh_destroy(SAG, h);
+            return 1;
+        }
         kh_destroy(SAG, h);
         if (mecors_verbose) fprintf(stderr, "[%.1f] thank you for using MeCorS!\n", realtime() - mecors_real_time);
         return 0;

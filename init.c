@@ -78,7 +78,10 @@ int main_init(const mecors_t opt) {
     pipeline_t pl;
     memset(&pl, 0, sizeof(pipeline_t));
     pl.fp = bseq_open(opt.one);
-    if (pl.fp == 0) return -1; //TODO
+    if (pl.fp == 0) {
+        fprintf(stderr, "[%.1f] ERROR: failed to open %s.", realtime() - mecors_real_time, opt.one);
+        return -1;
+    }
     pl.n_threads = 1, pl.batch_size = opt.batch_size; //Hard-coded: 1 thread
     kt_pipeline(1, worker_pipeline, &pl, 3);          //Hard-coded: 1 thread
     if (mecors_verbose) fprintf(stderr, "[%.1f] done with initialization\n", realtime() - mecors_real_time);
