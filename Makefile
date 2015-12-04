@@ -1,4 +1,4 @@
-PROG=corsage
+PROG=mecors
 
 CC=gcc
 CFLAGS=-Wall -pedantic -std=gnu99 -O3
@@ -22,7 +22,7 @@ clean:
 # DO NOT DELETE
 
 bseq.o: bseq.h kseq.h
-init.o: bseq.h khash.h corsage.h
-fill.o: bseq.h khash.h corsage.h
-corr.o: bseq.h khash.h corsage.h
-main.o: corsage.h
+init.o: bseq.h khash.h mecors.h
+fill.o: bseq.h khash.h mecors.h
+corr.o: bseq.h khash.h mecors.h
+main.o: mecors.h

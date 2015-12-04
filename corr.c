@@ -130,7 +130,7 @@ static void *worker_pipeline(void *shared, int step, void *in) {
 		s = (step_t*)calloc(1, sizeof(step_t));
 		s->seq = bseq_read(p->fp, p->batch_size, &s->n_seq, 1, 1);
 		opt.n_corr += s->n_seq;
-		if (corsage_verbose) fprintf(stderr, "\t[%.1f] read %" PRIuMAX "/%" PRIuMAX " single cell sequences\n", realtime() - corsage_real_time, opt.n_corr, opt.n_init);
+		if (mecors_verbose) fprintf(stderr, "\t[%.1f] read %" PRIuMAX "/%" PRIuMAX " single cell sequences\n", realtime() - mecors_real_time, opt.n_corr, opt.n_init);
 		if (s->seq) {
 			s->p = p;
 			for (int i = 0; i < s->n_seq; ++i) {
@@ -143,7 +143,7 @@ static void *worker_pipeline(void *shared, int step, void *in) {
 	} else if (step == 1) { // step 1: correct reads
 		step_t *s = (step_t*)in;
 		kt_for(p->n_threads, worker_for, in, s->n_seq);
-		if (corsage_verbose) fprintf(stderr, "\t[%.1f] processed %" PRIuMAX "/%" PRIuMAX " single cell sequences\n", realtime() - corsage_real_time, opt.n_corr, opt.n_init);
+		if (mecors_verbose) fprintf(stderr, "\t[%.1f] processed %" PRIuMAX "/%" PRIuMAX " single cell sequences\n", realtime() - mecors_real_time, opt.n_corr, opt.n_init);
 		return in;
 	} else if (step == 2) { // step 2: output and clean up
 		step_t *s = (step_t*)in;
@@ -160,14 +160,14 @@ static void *worker_pipeline(void *shared, int step, void *in) {
 	return 0;
 }
 
-int main_corr(const corsage_t opt) {
-	if (corsage_verbose) fprintf(stderr, "[%.1f] error correction (using %i threads)\n", realtime() - corsage_real_time, opt.n_threads);
+int main_corr(const mecors_t opt) {
+	if (mecors_verbose) fprintf(stderr, "[%.1f] error correction (using %i threads)\n", realtime() - mecors_real_time, opt.n_threads);
 	pipeline_t pl;
 	memset(&pl, 0, sizeof(pipeline_t));
 	pl.fp = bseq_open(opt.one);
 	if (pl.fp == 0) return -1; //TODO
 	pl.n_threads = opt.n_threads, pl.batch_size = opt.batch_size;
 	kt_pipeline(opt.n_threads, worker_pipeline, &pl, 3);
-	if (corsage_verbose) fprintf(stderr, "[%.1f] done with error correction\n", realtime() - corsage_real_time);
+	if (mecors_verbose) fprintf(stderr, "[%.1f] done with error correction\n", realtime() - mecors_real_time);
 	return 0;
 }
