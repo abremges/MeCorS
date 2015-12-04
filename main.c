@@ -1,6 +1,6 @@
 #include "mecors.h"
 
-#define VERSION "0.4.0"
+#define VERSION "0.4.1"
 
 mecors_t opt = {.one = NULL, .two = NULL,    \
     .k = 31, .min_cov = 2,                    \
