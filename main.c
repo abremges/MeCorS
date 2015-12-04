@@ -1,23 +1,23 @@
-#include "corsage.h"
+#include "mecors.h"
 
-#define VERSION "0.3.1"
+#define VERSION "0.4.0"
 
-corsage_t opt = {.one = NULL, .two = NULL,    \
+mecors_t opt = {.one = NULL, .two = NULL,    \
     .k = 31, .min_cov = 2,                    \
     .n_threads = 16, .batch_size = 100000000, \
     .n_init = 0, .n_fill = 0, .n_corr = 0};
 
-int corsage_verbose = 0;
-double corsage_real_time;
+int mecors_verbose = 0;
+double mecors_real_time;
 
 ////////////////////////////////////////////////////////////////////////////////
 // main                                                                       //
 ////////////////////////////////////////////////////////////////////////////////
 
 static int usage() {
-    fprintf(stderr, "corsage version %s by Andreas Bremges (andreas@cebitec.uni-bielefeld.de)\n\n", VERSION);
+    fprintf(stderr, "MeCorS version %s by Andreas Bremges (andreas@cebitec.uni-bielefeld.de)\n\n", VERSION);
 
-    fprintf(stderr, "Usage: corsage [options] -s <SC.fastq> -m <MG.fastq>\n\n");
+    fprintf(stderr, "Usage: mecors [options] -s <SC.fastq> -m <MG.fastq>\n\n");
 
     fprintf(stderr, "       -s <SC.fastq>  single cell sequencing reads\n");
     fprintf(stderr, "       -m <MG.fastq>  metagenomic sequencing reads\n");
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
                 if (opt.batch_size < 1) opt.batch_size = 1;
                 break; }
                 case 'v':
-                corsage_verbose = 1;
+                mecors_verbose = 1;
                 break;
                 default:
                 return usage();
@@ -73,13 +73,22 @@ int main(int argc, char *argv[]) {
         }
         if(!opt.one || !opt.two) return usage();
 
-        corsage_real_time = realtime();
-        if (corsage_verbose) fprintf(stderr, "[%.1f] this is corsage, version %s\n", realtime() - corsage_real_time, VERSION);
+        mecors_real_time = realtime();
+        if (mecors_verbose) fprintf(stderr, "[%.1f] this is MeCorS, version %s\n", realtime() - mecors_real_time, VERSION);
         h = kh_init(SAG);
-        main_init(opt);
-        main_fill(opt);
-        main_corr(opt);
+        if (main_init(opt)) {
+            kh_destroy(SAG, h);
+            return 1;
+        }
+        if (main_fill(opt)) {
+            kh_destroy(SAG, h);
+            return 1;
+        }
+        if (main_corr(opt)) {
+            kh_destroy(SAG, h);
+            return 1;
+        }
         kh_destroy(SAG, h);
-        if (corsage_verbose) fprintf(stderr, "[%.1f] thank you for using corsage!\n", realtime() - corsage_real_time);
+        if (mecors_verbose) fprintf(stderr, "[%.1f] thank you for using MeCorS!\n", realtime() - mecors_real_time);
         return 0;
     }

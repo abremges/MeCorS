@@ -1,5 +1,5 @@
-#ifndef CORSAGE_H
-#define CORSAGE_H
+#ifndef MECORS_H
+#define MECORS_H
 
 #include <inttypes.h>
 #include <pthread.h>
@@ -20,7 +20,7 @@ typedef struct {
     int k, min_cov;
     int n_threads, batch_size;
     uintmax_t n_init, n_fill, n_corr;
-} corsage_t;
+} mecors_t;
 
 typedef struct {
     int batch_size, n_processed, n_threads;
@@ -38,9 +38,9 @@ void kt_pipeline(int n_threads, void *(*func)(void*, int, void*), void *shared_d
 double cputime(void);
 double realtime(void);
 
-extern int corsage_verbose;
-extern double corsage_real_time;
-extern corsage_t opt;
+extern int mecors_verbose;
+extern double mecors_real_time;
+extern mecors_t opt;
 
 extern unsigned char seq_fwd_table[128];
 
@@ -48,4 +48,4 @@ int main_init();
 int main_fill();
 int main_corr();
 
-#endif /* CORSAGE_H */
+#endif /* MECORS_H */
