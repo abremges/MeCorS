@@ -166,9 +166,9 @@ int main_corr(const mecors_t opt) {
 	memset(&pl, 0, sizeof(pipeline_t));
 	pl.fp = bseq_open(opt.one);
 	if (pl.fp == 0) {
-        fprintf(stderr, "[%.1f] ERROR: failed to open %s.", realtime() - mecors_real_time, opt.one);
-        return -1;
-    }
+		fprintf(stderr, "[%.1f] ERROR: failed to open %s.", realtime() - mecors_real_time, opt.one);
+		return -1;
+	}
 	pl.n_threads = opt.n_threads, pl.batch_size = opt.batch_size;
 	kt_pipeline(opt.n_threads, worker_pipeline, &pl, 3);
 	if (mecors_verbose) fprintf(stderr, "[%.1f] done with error correction\n", realtime() - mecors_real_time);
