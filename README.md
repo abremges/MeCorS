@@ -1,4 +1,4 @@
-MeCorS [![Build Status](https://travis-ci.org/metagenomics/MeCorS.svg?branch=master)](https://travis-ci.org/metagenomics/MeCorS)
+MeCorS [![Build Status](https://travis-ci.org/abremges/MeCorS.svg?branch=master)](https://travis-ci.org/abremges/MeCorS)
 ======
 
 Metagenome-enabled error correction of single cell sequencing reads
